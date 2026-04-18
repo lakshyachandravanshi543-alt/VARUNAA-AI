@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Water Quality Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header class="app-header">
+            <h1><span class="gradient-text">AquaSense AI Detective</span></h1>
+            <p>Inferring hidden liquid and solid pollutants using 4 basic hardware sensors.</p>
+        </header>
+
+        <main class="dashboard">
+            <!-- Live IoT Toggle -->
+            <div class="live-toggle-container" style="text-align: center; margin-bottom: 2rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <label style="font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="live-mode-toggle" style="width: 20px; height: 20px; accent-color: var(--color-green);"> 
+                    Enable Live IoT Sensor Stream
+                </label>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">When enabled, the dashboard auto-updates using physical sensor data pushed over WiFi instead of manual sliding.</p>
+            </div>
+
+            <!-- Input Panel -->
+            <section class="panel input-panel">
+                <h2>Raw Hardware Sensor Data</h2>
+                <form id="prediction-form">
+                    
+                    <div class="category-section">
+                        <h3>Physical Sensor Probes</h3>
+                        <div class="input-group">
+                            <label for="ph">pH Level (Acidity/Alkalinity)</label>
+                            <div class="control-row">
+                                <input type="range" id="ph-slider" min="0" max="14" step="0.1" value="7.2">
+                                <input type="number" id="ph" min="0" max="14" step="0.1" value="7.2" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="do">Dissolved Oxygen (DO) - mg/L</label>
+                            <div class="control-row">
+                                <input type="range" id="do-slider" min="0" max="12" step="0.1" value="6.5">
+                                <input type="number" id="do" min="0" max="12" step="0.1" value="6.5" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="turbidity">Turbidity (Cloudiness) - NTU</label>
+                            <div class="control-row">
+                                <input type="range" id="turbidity-slider" min="0" max="400" step="1" value="5">
+                                <input type="number" id="turbidity" min="0" max="400" step="1" value="5" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="temperature">Water Temperature - °C</label>
+                            <div class="control-row">
+                                <input type="range" id="temperature-slider" min="0" max="45" step="0.5" value="24.0">
+                                <input type="number" id="temperature" min="0" max="45" step="0.5" value="24.0" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="analyze-btn">Ask AI to Identify Impurity</button>
+                </form>
+            </section>
+
+            <!-- Results Panel -->
+            <section class="panel results-panel" id="results-section">
+                <h2>AI Impurity Detection</h2>
+                <div id="results-display" class="results-container empty">
+                    <p class="placeholder-text">Waiting for sensor data to deduce hidden pollutants...</p>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
