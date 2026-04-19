@@ -42,7 +42,7 @@ CLASSES = {
         "state": "Dissolved Liquid (Toxic)",
         "color": "red",
         "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
-        "action": "DANGER: Toxic. Deploy low-cost Phytoremediation using Water Hyacinth (Eichhornia crassipes) or Vetiver grass along banks to absorb metals. Utilize agricultural waste (coconut shells/bagasse) as cheap biosorbents."
+        "action": "<b>1. Source Isolation:</b> Dispatch municipal team to halt upstream factory discharge.<br><b>2. Phytoremediation:</b> Deploy Water Hyacinth (Eichhornia crassipes) or Vetiver grass along banks to naturally absorb heavy metal ions.<br><b>3. Biosorbents:</b> Disperse crushed coconut shells and sugarcane bagasse into the water column to bind with free heavy metals rapidly."
     },
     2: {
         "pollutant": "Untreated Biological Sewage",
@@ -50,7 +50,7 @@ CLASSES = {
         "state": "Liquid & Suspended Solids",
         "color": "orange",
         "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
-        "action": "High pathogenic risk. Implement Root Zone Treatment Systems (Constructed Wetlands) using local reeds. Apply low-cost Effective Microorganisms (EM) or Bokashi balls to accelerate waste breakdown."
+        "action": "<b>1. Artificial Aeration:</b> Deploy floating solar aerators to instantly restore Dissolved Oxygen and stop fish kills.<br><b>2. Constructed Wetlands:</b> Implement Root Zone Treatment Systems using native reeds to filter solids.<br><b>3. Bio-Augmentation:</b> Release Effective Microorganisms (EM) or Bokashi mud balls to safely accelerate the breakdown of organic sewage."
     },
     3: {
         "pollutant": "Petroleum / Oil Spill",
@@ -58,7 +58,7 @@ CLASSES = {
         "state": "Liquid (Surface Slick)",
         "color": "blue",
         "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
-        "action": "Deploy low-cost natural biosorbents immediately: Coir pith (coconut fiber), human hair mats, or sugarcane bagasse floating booms to rapidly soak up surface oil slicks."
+        "action": "<b>1. Containment Booms:</b> Deploy cheap, natural floating booms made of sugarcane bagasse or human hair mats to trap the slick.<br><b>2. Absorption:</b> Spread Coir pith (coconut fiber) across the surface to naturally soak up the petroleum.<br><b>3. Oil Skimming:</b> Physically extract the absorbed clumps before they sink."
     },
     4: {
         "pollutant": "Agricultural Fertilizer Runoff",
@@ -66,7 +66,7 @@ CLASSES = {
         "state": "Dissolved Liquid / Algal Bloom",
         "color": "orange",
         "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
-        "action": "Eutrophication alert (Algal Bloom). Introduce local algae-eating fish species (like Rohu) and implement manual algae harvesting for use as biogas or organic manure."
+        "action": "<b>1. Mechanical Harvesting:</b> Skim the thick algae off the surface to restore sunlight penetration.<br><b>2. Biological Control:</b> Introduce endemic algae-eating carp species (like native Rohu) to control regrowth.<br><b>3. Repurposing:</b> Convert the harvested toxic algae into safe agricultural compost or biogas fuel."
     },
     5: {
         "pollutant": "Plastics & Municipal Solid Waste",
@@ -74,7 +74,7 @@ CLASSES = {
         "state": "Solid Waste / Microplastics",
         "color": "blue",
         "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
-        "action": "Deploy cheap locally-made bamboo Trash Booms or AlphaMERS floating mesh barriers at river bends. Organize community 'Shramdaan' (volunteer cleanups) for solid waste extraction."
+        "action": "<b>1. Physical Barriers:</b> Construct low-cost bamboo trash booms across natural river bends to trap macro-plastics.<br><b>2. Civic Engagement:</b> Organize community 'Shramdaan' (volunteer cleanups) to haul trapped waste to banks.<br><b>3. Upcycling:</b> Route extracted plastics to local road-building or brick-making enterprises."
     }
 }
 

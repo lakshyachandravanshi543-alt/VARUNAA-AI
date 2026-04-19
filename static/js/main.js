@@ -80,10 +80,33 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="result-message" style="margin-bottom: 1rem;">${result.details}</div>
-            <div style="padding: 15px; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; border-radius: 8px; font-weight: bold; margin-top: 15px; color: #10b981;">
-                RIVER CLEANING STRATEGY: ${result.action}
+            <button id="toggle-cleaning-btn" style="width: 100%; padding: 12px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: all 0.3s ease;">
+                🔍 View Localized Cleaning Strategy
+            </button>
+            
+            <div id="cleaning-strategy-panel" style="display: none; padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; margin-top: 10px; color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; text-align: left;">
+                <strong style="color: #10b981; font-size: 1.05rem; display: block; margin-bottom: 8px; text-transform: uppercase;">Recommended Mitigation Process:</strong>
+                ${result.action}
             </div>
         `;
+
+        const toggleBtn = document.getElementById('toggle-cleaning-btn');
+        const strategyPanel = document.getElementById('cleaning-strategy-panel');
+        if (toggleBtn && strategyPanel) {
+            toggleBtn.addEventListener('click', () => {
+                if (strategyPanel.style.display === 'none') {
+                    strategyPanel.style.display = 'block';
+                    toggleBtn.style.background = '#10b981';
+                    toggleBtn.style.color = '#ffffff';
+                    toggleBtn.innerHTML = 'Hide Cleaning Strategy ▲';
+                } else {
+                    strategyPanel.style.display = 'none';
+                    toggleBtn.style.background = 'rgba(16, 185, 129, 0.2)';
+                    toggleBtn.style.color = '#10b981';
+                    toggleBtn.innerHTML = '🔍 View Localized Cleaning Strategy';
+                }
+            });
+        }
     }
 
     // --- MAP INITIALIZATION ---
