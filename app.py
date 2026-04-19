@@ -33,42 +33,42 @@ CLASSES = {
         "state": "Liquid (Clear)",
         "color": "green",
         "details": "The AI detected normal pH, healthy dissolved oxygen, and minimal turbidity. No significant pollutants match this chemical signature.",
-        "action": "Safe for standard uses."
+        "action": "Safe for standard uses. Continue basic monitoring."
     },
     1: {
         "pollutant": "Industrial Heavy Metals",
         "state": "Dissolved Liquid (Toxic)",
         "color": "red",
         "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
-        "action": "DANGER: Toxic to human and aquatic life. Do not consume or use for agriculture."
+        "action": "DANGER: Toxic. Deploy low-cost Phytoremediation using Water Hyacinth (Eichhornia crassipes) or Vetiver grass along banks to absorb metals. Utilize agricultural waste (coconut shells/bagasse) as cheap biosorbents."
     },
     2: {
         "pollutant": "Untreated Biological Sewage",
         "state": "Liquid & Suspended Solids",
         "color": "orange",
         "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
-        "action": "High risk of pathogenic diseases. Avoid contact. Implement biological filtration."
+        "action": "High pathogenic risk. Implement Root Zone Treatment Systems (Constructed Wetlands) using local reeds. Apply low-cost Effective Microorganisms (EM) or Bokashi balls to accelerate waste breakdown."
     },
     3: {
         "pollutant": "Petroleum / Oil Spill",
         "state": "Liquid (Surface Slick)",
         "color": "blue",
         "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
-        "action": "Deploy physical skimmers immediately to prevent complete aquatic suffocation."
+        "action": "Deploy low-cost natural biosorbents immediately: Coir pith (coconut fiber), human hair mats, or sugarcane bagasse floating booms to rapidly soak up surface oil slicks."
     },
     4: {
         "pollutant": "Agricultural Fertilizer Runoff",
         "state": "Dissolved Liquid / Algal Bloom",
         "color": "orange",
         "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
-        "action": "Eutrophication alert. Investigate nearby farming runoff."
+        "action": "Eutrophication alert (Algal Bloom). Introduce local algae-eating fish species (like Rohu) and implement manual algae harvesting for use as biogas or organic manure."
     },
     5: {
         "pollutant": "Plastics & Municipal Solid Waste",
         "state": "Solid Waste / Microplastics",
         "color": "blue",
         "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
-        "action": "Requires physical filtration nets and macroscopic garbage removal."
+        "action": "Deploy cheap locally-made bamboo Trash Booms or AlphaMERS floating mesh barriers at river bends. Organize community 'Shramdaan' (volunteer cleanups) for solid waste extraction."
     }
 }
 
