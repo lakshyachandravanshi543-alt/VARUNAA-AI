@@ -28,6 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if(historyLog.length > 150) historyLog.shift(); // keep last 150 logs
         
+        let marineStatus = "";
+        let marineColor = "";
+        let doLevel = parseFloat(dataObj.raw_sensors.do);
+
+        if (doLevel > 5.5) {
+            marineStatus = "🐟 Thriving Habitat: Oxygen levels support all local fish (Rohu, Catla) and sensitive aquatic species.";
+            marineColor = "#10b981";
+        } else if (doLevel >= 3.0) {
+            marineStatus = "⚠️ Hypoxic Stress: Fish are struggling to breathe. Sensitive species are migrating away or dying.";
+            marineColor = "#f59e0b";
+        } else {
+            marineStatus = "💀 CRITICAL (Asphyxiation Zone): Lethal oxygen depletion. Imminent localized mass fish-kill event.";
+            marineColor = "#ef4444";
+        }
+        
         resultsContainer.className = `results-container status-${result.color}`;
         resultsContainer.innerHTML = `
             <div style="font-size:1.1rem; color:#cbd5e1; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
@@ -37,11 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="result-status" style="font-size: 1.8rem;">${result.pollutant}</div>
             <div style="font-weight: bold; margin-bottom: 1rem; color: #cbd5e1; letter-spacing: 1px;">POLLUTANT STATE: <span style="color:white;">${result.state}</span></div>
             
-            <div style="display:flex; justify-content:center; gap: 15px; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
+            <div style="display:flex; justify-content:center; gap: 15px; margin-bottom: 1rem; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
                 <span><b>pH:</b> ${dataObj.raw_sensors.ph}</span>
                 <span><b>DO:</b> ${dataObj.raw_sensors.do.toFixed(1)} mg/L</span>
                 <span><b>Turb:</b> ${dataObj.raw_sensors.turbidity} NTU</span>
                 <span><b>Temp:</b> ${dataObj.raw_sensors.temperature}°C</span>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; padding: 12px; background: rgba(0,0,0,0.3); border-left: 4px solid ${marineColor}; border-radius: 6px;">
+                <div style="font-size: 0.85rem; color: #cbd5e1; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Marine Life Viability Index</div>
+                <div style="color: ${marineColor}; font-weight: 600; font-size: 0.95rem;">${marineStatus}</div>
             </div>
 
             <div class="result-message" style="margin-bottom: 1rem;">${result.details}</div>
