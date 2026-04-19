@@ -6,12 +6,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualInputContainer = document.getElementById('manual-input-container');
     const toggleDesc = document.getElementById('toggle-desc');
     
+    // CSV History Log tracking
+    let historyLog = [];
+    
     // UI Update logic
     function renderResult(dataObj) {
         if (!dataObj || !dataObj.prediction) return;
         const result = dataObj.prediction;
         
         let headerTitle = dataObj.name ? `📌 ${dataObj.name}` : "📡 Live Physical Hardware Ping";
+        
+        // Log to history for CSV download
+        historyLog.push({
+            timestamp: new Date().toISOString(),
+            riverName: dataObj.name || "Local Hardware Node",
+            ph: dataObj.raw_sensors.ph,
+            do: dataObj.raw_sensors.do.toFixed(1),
+            turbidity: dataObj.raw_sensors.turbidity,
+            temp: dataObj.raw_sensors.temperature,
+            prediction: result.pollutant
+        });
+        if(historyLog.length > 150) historyLog.shift(); // keep last 150 logs
         
         resultsContainer.className = `results-container status-${result.color}`;
         resultsContainer.innerHTML = `
@@ -157,6 +172,29 @@ document.addEventListener('DOMContentLoaded', () => {
             slider.addEventListener('input', (e) => numInput.value = e.target.value);
             numInput.addEventListener('input', (e) => slider.value = e.target.value);
         }
+    });
+
+    // CSV Download Functionality
+    document.getElementById('download-csv-btn').addEventListener('click', () => {
+        if(historyLog.length === 0) {
+            alert("Waiting for sensor data. Give the system a few seconds to log physical data.");
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Timestamp,Node/River,pH,DO (mg/L),Turbidity (NTU),Temperature (C),AI_Inference\n";
+        
+        historyLog.forEach(row => {
+            csvContent += `${row.timestamp},"${row.riverName}",${row.ph},${row.do},${row.turbidity},${row.temp},"${row.prediction}"\n`;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `AquaSense_Compliance_Log_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     });
 
     document.getElementById('prediction-form').addEventListener('submit', async (e) => {

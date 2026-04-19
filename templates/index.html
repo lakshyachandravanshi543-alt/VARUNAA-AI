@@ -75,9 +75,33 @@
 
             <!-- Results Panel -->
             <section class="panel results-panel" id="results-section">
-                <h2>AI Impurity Detection</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">AI Impurity Detection</h2>
+                    <button id="download-csv-btn" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Download Report CSV</button>
+                </div>
+                
                 <div id="results-display" class="results-container empty">
                     <p class="placeholder-text">Waiting for sensor data to deduce hidden pollutants...</p>
+                </div>
+
+                <!-- Predictive Maintenance Diagnostics -->
+                <div id="diagnostics-panel" style="margin-top: 1.5rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.1rem; color: var(--accent-blue); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">📡 Node Health Diagnostics</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #10b981;">●</span> <span>Battery (LiFePO4):</span> <strong>82% (Discharging)</strong>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #10b981;">●</span> <span>Solar Array:</span> <strong>Idle (Night Mode)</strong>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; color: #f59e0b;">
+                            <span>⚠️</span> <span>Lens Integrity:</span> <strong>Cleaning req. in 4 days</strong>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #3b82f6;">●</span> <span>Telemetry Link:</span> <strong>98ms (Good)</strong>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>

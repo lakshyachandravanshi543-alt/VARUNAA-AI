@@ -3,8 +3,8 @@ import time
 import random
 import json
 
-# Your Flask Server URL
-FLASK_SERVER = "http://127.0.0.1:5000/api/predict"
+# Your Cloud Run Server URL
+FLASK_SERVER = "https://aquasense-ai-149325089156.europe-west1.run.app/api/predict"
 
 def generate_hardware_anomaly():
     """Generates drifting hardware values simulating a moving river buoy"""

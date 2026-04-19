@@ -8,9 +8,9 @@ const char* ssid = "YOUR_WIFI_NAME";
 const char* password = "YOUR_WIFI_PASSWORD";
 
 // -----------------------------------------
-// 2. Your Laptop's IP Address & API Endpoint
+// 2. Your Cloud Run API Endpoint
 // -----------------------------------------
-const char* serverName = "http://192.168.x.x:5000/api/predict";
+const char* serverName = "https://aquasense-ai-149325089156.europe-west1.run.app/api/predict";
 
 // -----------------------------------------
 // 3. Sensor Output Pins (ESP32)
