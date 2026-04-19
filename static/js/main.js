@@ -30,9 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         resultsContainer.className = `results-container status-${result.color}`;
         resultsContainer.innerHTML = `
-            <div style="font-size:1.1rem; color:#cbd5e1; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+            <div style="font-size:1.1rem; color:#cbd5e1; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                 ${headerTitle}
             </div>
+            ${dataObj.weather ? `<div style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; padding: 8px 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">${dataObj.weather}</div>` : ''}
             <div class="result-status" style="font-size: 1.8rem;">${result.pollutant}</div>
             <div style="font-weight: bold; margin-bottom: 1rem; color: #cbd5e1; letter-spacing: 1px;">POLLUTANT STATE: <span style="color:white;">${result.state}</span></div>
             

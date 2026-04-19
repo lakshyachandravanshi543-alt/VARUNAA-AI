@@ -129,13 +129,36 @@ def simulate_network():
                     do = round(random.uniform(0.5, 2.0), 2)
                     turb = round(random.uniform(200, 300), 2)
 
+            # --- Context-Aware AI (Weather API Simulation) ---
+            weather_state = random.choices(['Clear', 'Cloudy', 'Heavy Rainfall'], weights=[70, 20, 10])[0]
+            
+            if weather_state == 'Heavy Rainfall':
+                # Natural rain causes mud runoff (high turbidity) naturally, masking normal levels
+                turb = round(random.uniform(150, 400), 2)
+            
             prediction = run_inference(ph, do, turb, temp)
             
+            # If the AI detects a turbidity spike caused by Rain, it uses Context-Aware Overrides
+            context_alert = None
+            if weather_state == 'Heavy Rainfall' and prediction['color'] in ['orange', 'blue']:
+                # Override the AI prediction because it knows it is just natural rain mud!
+                prediction = {
+                    "pollutant": "Natural Mud Runoff (Rain Induced)",
+                    "state": "Turbid Liquid (Safe)",
+                    "color": "green",
+                    "details": f"Context-Aware AI Triggered: Extreme turbidity ({turb} NTU) detected. However, Weather Integration confirms 'Heavy Rainfall'. False alarm suppressed.",
+                    "action": "No action needed. Water cloudiness is from natural rain sediment, not biological sewage."
+                }
+                context_alert = "🌧️ Weather API Override Active"
+            elif weather_state == 'Heavy Rainfall':
+                context_alert = "🌧️ Raining (Baselines Adjusted)"
+
             updates.append({
                 "id": rv["id"],
                 "name": rv["name"],
                 "lat": rv["lat"],
                 "lng": rv["lng"],
+                "weather": context_alert,
                 "raw_sensors": {"ph": ph, "do": do, "turbidity": turb, "temperature": temp},
                 "prediction": prediction
             })
