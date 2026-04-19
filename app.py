@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, render_template
 import joblib
 import os
 import threading
+import time
+import random
 
 app = Flask(__name__)
 
@@ -24,94 +26,163 @@ latest_inference = {
 }
 lock = threading.Lock()
 
+# Highly detailed pollution mappings shared across all instances
+CLASSES = {
+    0: {
+        "pollutant": "Clean Water / No Major Impurities Found",
+        "state": "Liquid (Clear)",
+        "color": "green",
+        "details": "The AI detected normal pH, healthy dissolved oxygen, and minimal turbidity. No significant pollutants match this chemical signature.",
+        "action": "Safe for standard uses."
+    },
+    1: {
+        "pollutant": "Industrial Heavy Metals",
+        "state": "Dissolved Liquid (Toxic)",
+        "color": "red",
+        "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
+        "action": "DANGER: Toxic to human and aquatic life. Do not consume or use for agriculture."
+    },
+    2: {
+        "pollutant": "Untreated Biological Sewage",
+        "state": "Liquid & Suspended Solids",
+        "color": "orange",
+        "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
+        "action": "High risk of pathogenic diseases. Avoid contact. Implement biological filtration."
+    },
+    3: {
+        "pollutant": "Petroleum / Oil Spill",
+        "state": "Liquid (Surface Slick)",
+        "color": "blue",
+        "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
+        "action": "Deploy physical skimmers immediately to prevent complete aquatic suffocation."
+    },
+    4: {
+        "pollutant": "Agricultural Fertilizer Runoff",
+        "state": "Dissolved Liquid / Algal Bloom",
+        "color": "orange",
+        "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
+        "action": "Eutrophication alert. Investigate nearby farming runoff."
+    },
+    5: {
+        "pollutant": "Plastics & Municipal Solid Waste",
+        "state": "Solid Waste / Microplastics",
+        "color": "blue",
+        "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
+        "action": "Requires physical filtration nets and macroscopic garbage removal."
+    }
+}
+
+# --- VIRTUAL RIVER NETWORK ---
+# Simulated live data for specific rivers to create a "Digital Twin" Map
+network_state = {}
+network_lock = threading.Lock()
+
+VIRTUAL_RIVERS = [
+    {
+        "id": "ganges_1", "name": "Ganges River (Varanasi, India)", "lat": 25.3176, "lng": 82.9739,
+        "base_ph": (6.5, 7.5), "base_do": (2.0, 4.0), "base_turb": (150, 250), "base_temp": (24, 28)
+    },
+    {
+        "id": "thames_1", "name": "River Thames (London, UK)", "lat": 51.5072, "lng": -0.1276,
+        "base_ph": (7.0, 8.0), "base_do": (6.0, 9.0), "base_turb": (5, 15), "base_temp": (10, 15)
+    },
+    {
+        "id": "mississippi_1", "name": "Mississippi River (NOLA, USA)", "lat": 29.9511, "lng": -90.0715,
+        "base_ph": (6.8, 7.8), "base_do": (5.0, 7.0), "base_turb": (60, 120), "base_temp": (20, 26)
+    },
+    {
+        "id": "rhine_1", "name": "Rhine River (Cologne, Germany)", "lat": 50.9375, "lng": 6.9603,
+        "base_ph": (7.2, 8.2), "base_do": (7.0, 10.0), "base_turb": (2, 8), "base_temp": (12, 18)
+    }
+]
+
+def run_inference(ph, do, turbidity, temp):
+    """Helper to run the ML model."""
+    if not model or not scaler:
+        return CLASSES.get(0)
+    features = [float(ph), float(do), float(turbidity), float(temp)]
+    features_scaled = scaler.transform([features])
+    prediction = model.predict(features_scaled)[0]
+    return CLASSES.get(int(prediction), CLASSES[0])
+
+def simulate_network():
+    """Background thread simulating live sensor data for the virtual rivers."""
+    while True:
+        updates = []
+        for rv in VIRTUAL_RIVERS:
+            # Generate baseline fluctuating data
+            ph = round(random.uniform(*rv['base_ph']), 2)
+            do = round(random.uniform(*rv['base_do']), 2)
+            turb = round(random.uniform(*rv['base_turb']), 2)
+            temp = round(random.uniform(*rv['base_temp']), 2)
+            
+            # Very rarely, simulate an extreme anomaly so the map changes dynamically
+            if random.random() < 0.05: # 5% chance of anomaly per tick
+                event_type = random.choice(['oil', 'metal', 'sewage'])
+                if event_type == 'oil':
+                    do = round(random.uniform(0.5, 2.0), 2)
+                    turb = round(random.uniform(40, 80), 2)
+                elif event_type == 'metal':
+                    ph = round(random.uniform(2.0, 4.0), 2)
+                    temp = round(random.uniform(28, 35), 2)
+                elif event_type == 'sewage':
+                    do = round(random.uniform(0.5, 2.0), 2)
+                    turb = round(random.uniform(200, 300), 2)
+
+            prediction = run_inference(ph, do, turb, temp)
+            
+            updates.append({
+                "id": rv["id"],
+                "name": rv["name"],
+                "lat": rv["lat"],
+                "lng": rv["lng"],
+                "raw_sensors": {"ph": ph, "do": do, "turbidity": turb, "temperature": temp},
+                "prediction": prediction
+            })
+            
+        with network_lock:
+            global network_state
+            network_state = updates
+            
+        time.sleep(5) # Update network every 5 seconds
+
+# Start the simulation thread
+sim_thread = threading.Thread(target=simulate_network, daemon=True)
+sim_thread.start()
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+@app.route('/api/network_state', methods=['GET'])
+def get_network_state():
+    """Endpoint to get live simulated data for all virtual buoys globally."""
+    with network_lock:
+        return jsonify(network_state)
+
 @app.route('/api/live', methods=['GET'])
 def get_live_data():
-    """Endpoint for the dashboard to poll the most recent data automatically"""
+    """Endpoint for the dashboard to poll the most recent PHYSICAL data automatically"""
     with lock:
         return jsonify(latest_inference)
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
+    """Endpoint receiving single physical data pings (or manual tests)"""
     global latest_inference
-    if not model or not scaler:
-        return jsonify({'error': 'AI Model is not trained yet!'}), 500
-
     data = request.json
-    
     try:
-        # Expected input: ph, do, turbidity, temperature
-        features = [
-            float(data.get('ph', 7.0)),
-            float(data.get('do', 6.0)),
-            float(data.get('turbidity', 5.0)),
-            float(data.get('temperature', 24.0))
-        ]
+        ph = float(data.get('ph', 7.0))
+        do = float(data.get('do', 6.0))
+        turbidity = float(data.get('turbidity', 5.0))
+        temperature = float(data.get('temperature', 24.0))
         
-        # Scale and predict
-        features_scaled = scaler.transform([features])
-        prediction = model.predict(features_scaled)[0]
-        
-        # Highly detailed pollution mappings
-        classes = {
-            0: {
-                "pollutant": "Clean Water / No Major Impurities Found",
-                "state": "Liquid (Clear)",
-                "color": "green",
-                "details": "The AI detected normal pH, healthy dissolved oxygen, and minimal turbidity. No significant pollutants match this chemical signature.",
-                "action": "Safe for standard uses."
-            },
-            1: {
-                "pollutant": "Industrial Heavy Metals (Lead/Arsenic/Chromium)",
-                "state": "Dissolved Liquid (Toxic)",
-                "color": "red",
-                "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
-                "action": "DANGER: Toxic to human and aquatic life. Do not consume or use for agriculture."
-            },
-            2: {
-                "pollutant": "Untreated Biological Sewage",
-                "state": "Liquid & Suspended Solids",
-                "color": "orange",
-                "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
-                "action": "High risk of pathogenic diseases. Avoid contact. Implement biological filtration."
-            },
-            3: {
-                "pollutant": "Petroleum / Oil Spill",
-                "state": "Liquid (Surface Slick)",
-                "color": "blue",
-                "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
-                "action": "Deploy physical skimmers immediately to prevent complete aquatic suffocation."
-            },
-            4: {
-                "pollutant": "Agricultural Fertilizer Runoff",
-                "state": "Dissolved Liquid / Algal Bloom",
-                "color": "orange",
-                "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
-                "action": "Eutrophication alert. Investigate nearby farming runoff."
-            },
-            5: {
-                "pollutant": "Plastics & Municipal Solid Waste",
-                "state": "Solid Waste / Microplastics",
-                "color": "blue",
-                "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
-                "action": "Requires physical filtration nets and macroscopic garbage removal."
-            }
-        }
-        
-        result_payload = classes.get(int(prediction), {"pollutant": "Unknown", "color": "gray", "state": "Unknown", "details": "Anomaly undetected.", "action": "none"})
+        result_payload = run_inference(ph, do, turbidity, temperature)
         
         # Update global state for Live IoT streaming
         with lock:
             latest_inference = {
-                "raw_sensors": {
-                    "ph": features[0],
-                    "do": features[1],
-                    "turbidity": features[2],
-                    "temperature": features[3]
-                },
+                "raw_sensors": {"ph": ph, "do": do, "turbidity": turbidity, "temperature": temperature},
                 "prediction": result_payload
             }
         

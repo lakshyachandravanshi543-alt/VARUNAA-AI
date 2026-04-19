@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Water Quality Detector</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -17,18 +19,21 @@
         </header>
 
         <main class="dashboard">
-            <!-- Live IoT Toggle -->
-            <div class="live-toggle-container" style="text-align: center; margin-bottom: 2rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <!-- Mode Toggle Header -->
+            <div class="live-toggle-container" style="grid-column: 1 / -1; text-align: center; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
                 <label style="font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="live-mode-toggle" style="width: 20px; height: 20px; accent-color: var(--color-green);"> 
-                    Enable Live IoT Sensor Stream
+                    Enable Live Physical Sensor Stream Override
                 </label>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">When enabled, the dashboard auto-updates using physical sensor data pushed over WiFi instead of manual sliding.</p>
+                <p id="toggle-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">Currently showing <b>Global Virtual River Network (Digital Twin Map)</b>. Toggle to switch to single local physical hardware stream.</p>
             </div>
 
-            <!-- Input Panel -->
-            <section class="panel input-panel">
-                <h2>Raw Hardware Sensor Data</h2>
+            <!-- Left Panel: Map or Manual Input -->
+            <section class="panel" id="left-panel" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                <div id="map" style="flex-grow: 1; height: 600px; width: 100%;"></div>
+                
+                <div id="manual-input-container" class="input-panel" style="display: none; padding: 2rem;">
+                    <h2 style="margin-top: 0;">Raw Hardware Sensor Data</h2>
                 <form id="prediction-form">
                     
                     <div class="category-section">
@@ -65,6 +70,7 @@
 
                     <button type="submit" class="analyze-btn">Ask AI to Identify Impurity</button>
                 </form>
+                </div>
             </section>
 
             <!-- Results Panel -->
@@ -78,6 +84,8 @@
 
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
