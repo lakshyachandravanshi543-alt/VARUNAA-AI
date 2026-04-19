@@ -43,14 +43,29 @@ document.addEventListener('DOMContentLoaded', () => {
             marineColor = "#ef4444";
         }
         
+        // Build the specific pollutants string
+        let pollutantsHtml = '';
+        if (result.specific_pollutants && result.specific_pollutants.length > 0) {
+            let listItems = result.specific_pollutants.map(p => `<li style="margin-bottom: 4px;">• ${p}</li>`).join('');
+            pollutantsHtml = `
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 1.5rem; text-align: left; border-left: 3px solid var(--accent-blue);">
+                    <span style="font-size: 0.85rem; color: #a0aabf; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px;">Specific Biological/Chemical Threats:</span>
+                    <ul style="list-style-type: none; padding-left: 10px; margin: 0; color: #cbd5e1; font-size: 0.95rem;">
+                        ${listItems}
+                    </ul>
+                </div>
+            `;
+        }
+        
         resultsContainer.className = `results-container status-${result.color}`;
         resultsContainer.innerHTML = `
             <div style="font-size:1.1rem; color:#cbd5e1; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                 ${headerTitle}
             </div>
             ${dataObj.weather ? `<div style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; padding: 8px 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">${dataObj.weather}</div>` : ''}
-            <div class="result-status" style="font-size: 1.8rem;">${result.pollutant}</div>
-            <div style="font-weight: bold; margin-bottom: 1rem; color: #cbd5e1; letter-spacing: 1px;">POLLUTANT STATE: <span style="color:white;">${result.state}</span></div>
+            <div class="result-status" style="font-size: 1.8rem; margin-bottom: 0.5rem;">${result.pollutant}</div>
+            <div style="font-weight: bold; margin-bottom: 1.5rem; color: #cbd5e1; letter-spacing: 1px;">POLLUTANT STATE: <span style="color:white;">${result.state}</span></div>
+            ${pollutantsHtml}
             
             <div style="display:flex; justify-content:center; gap: 15px; margin-bottom: 1rem; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
                 <span><b>pH:</b> ${dataObj.raw_sensors.ph}</span>

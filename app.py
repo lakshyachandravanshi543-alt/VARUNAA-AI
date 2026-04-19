@@ -30,6 +30,7 @@ lock = threading.Lock()
 CLASSES = {
     0: {
         "pollutant": "Clean Water / No Major Impurities Found",
+        "specific_pollutants": ["None specific"],
         "state": "Liquid (Clear)",
         "color": "green",
         "details": "The AI detected normal pH, healthy dissolved oxygen, and minimal turbidity. No significant pollutants match this chemical signature.",
@@ -37,6 +38,7 @@ CLASSES = {
     },
     1: {
         "pollutant": "Industrial Heavy Metals",
+        "specific_pollutants": ["Lead (Pb)", "Arsenic (As)", "Mercury", "Cadmium", "Industrial Acids"],
         "state": "Dissolved Liquid (Toxic)",
         "color": "red",
         "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
@@ -44,6 +46,7 @@ CLASSES = {
     },
     2: {
         "pollutant": "Untreated Biological Sewage",
+        "specific_pollutants": ["Fecal Coliforms", "E. coli Bacteria", "Ammonia", "Raw Organic Waste"],
         "state": "Liquid & Suspended Solids",
         "color": "orange",
         "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
@@ -51,6 +54,7 @@ CLASSES = {
     },
     3: {
         "pollutant": "Petroleum / Oil Spill",
+        "specific_pollutants": ["Crude Oil Substrates", "Diesel/Motor Oil", "Petrochemical Greases"],
         "state": "Liquid (Surface Slick)",
         "color": "blue",
         "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
@@ -58,6 +62,7 @@ CLASSES = {
     },
     4: {
         "pollutant": "Agricultural Fertilizer Runoff",
+        "specific_pollutants": ["Nitrates", "Phosphorus", "Toxic Cyanobacteria (Algal Bloom)"],
         "state": "Dissolved Liquid / Algal Bloom",
         "color": "orange",
         "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
@@ -65,6 +70,7 @@ CLASSES = {
     },
     5: {
         "pollutant": "Plastics & Municipal Solid Waste",
+        "specific_pollutants": ["Macro-plastics (Bags/Bottles)", "Suspended Microplastics", "Solid Urban Rubble"],
         "state": "Solid Waste / Microplastics",
         "color": "blue",
         "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
@@ -144,6 +150,7 @@ def simulate_network():
                 # Override the AI prediction because it knows it is just natural rain mud!
                 prediction = {
                     "pollutant": "Natural Mud Runoff (Rain Induced)",
+                    "specific_pollutants": ["Silt", "Natural Riverbank Sediment", "Clay Particles"],
                     "state": "Turbid Liquid (Safe)",
                     "color": "green",
                     "details": f"Context-Aware AI Triggered: Extreme turbidity ({turb} NTU) detected. However, Weather Integration confirms 'Heavy Rainfall'. False alarm suppressed.",
