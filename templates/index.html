@@ -105,6 +105,32 @@
             </div>
         </section>
 
+        <!-- Hardware & System Pipeline Information -->
+        <section class="info-section">
+            <div class="info-card" style="border-top: 3px solid var(--accent-blue);">
+                <h3>⚙️ The Physical Hardware Node</h3>
+                <p>To successfully capture real-time river data, the system relies on a low-power, waterproof hardware node designed for prolonged remote deployment. This is the physical "brain" of the operation that lives directly in the river.</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <ul class="tech-list" style="margin-bottom: 0;">
+                        <li><strong>Microcontroller:</strong> ESP32 Processor (Chosen for ultra-low power consumption and built-in Wi-Fi/Bluetooth stacks).</li>
+                        <li><strong>Analog Interface:</strong> Probes are connected via raw analog pins (e.g., pH on Pin 34, Turbidity on Pin 35) taking raw voltage readings from the water stream.</li>
+                        <li><strong>Power Supply:</strong> Designed to run continuously on LiFePO4 batteries coupled with a 5W Solar Panel for off-the-grid survival.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-card" style="border-top: 3px solid var(--color-green);">
+                <h3>📡 Hardware-to-Cloud Telemetry</h3>
+                <p>Reading raw sensor voltage is only step one. The system must transport this data instantly securely out of the river and into the Machine Learning engine located in Google Cloud.</p>
+                <ol style="color: var(--text-secondary); line-height: 1.6; margin-left: 1.2rem;">
+                    <li><strong>Polling:</strong> The C++ code on the ESP32 wakes up every 10 seconds and averages 10 rapid readings to filter out electrical noise.</li>
+                    <li><strong>Calibration:</strong> The raw voltages (0-4095) are mathematically scaled on the device (e.g., converting voltage curve to NTU for turbidity).</li>
+                    <li><strong>JSON Payload:</strong> The Arduino C++ code binds the 4 finalized metrics into a secure JSON Payload wrapper.</li>
+                    <li><strong>POST Request:</strong> The node shoots the payload via HTTP POST directly to our deployed Google Cloud Run API endpoint where the AI scaler intercepts it!</li>
+                </ol>
+            </div>
+        </section>
+
     </div>
 
     <!-- Leaflet JS & Chart JS -->
