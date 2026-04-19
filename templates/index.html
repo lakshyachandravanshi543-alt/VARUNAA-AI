@@ -87,15 +87,8 @@
             <div class="info-card">
                 <h3>🌍 The Global Water Crisis</h3>
                 <p>According to the Environmental Performance Index (EPI), water quality remains a critical global challenge, particularly in nations where rapid industrialization outpaces sanitation infrastructure.</p>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <span class="stat-value">High Risk Zones</span>
-                        <span class="stat-label">Countries struggling with the lowest river and sanitation indices often include: Chad, Central African Republic, Pakistan, India, and Niger.</span>
-                    </div>
-                    <div class="stat-box alert-box">
-                        <span class="stat-value">80%</span>
-                        <span class="stat-label">Of global wastewater from human activities flows back into rivers and oceans without ANY treatment, contributing to lethal biological sewage and heavy metal toxicity.</span>
-                    </div>
+                <div style="margin-top: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <canvas id="epiChart" height="200"></canvas>
                 </div>
             </div>
 
@@ -114,8 +107,9 @@
 
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Leaflet JS & Chart JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

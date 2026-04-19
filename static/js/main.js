@@ -177,4 +177,60 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error:', error);
         }
     });
+
+    // --- EPI CHART INITIALIZATION ---
+    const ctx = document.getElementById('epiChart');
+    if(ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Finland', 'UK', 'USA', 'India', 'Pakistan', 'Chad'],
+                datasets: [{
+                    label: 'Water Quality Score (100 is best)',
+                    data: [98, 85, 78, 24, 21, 15],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.6)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(245, 158, 11, 0.6)',
+                        'rgba(239, 68, 68, 0.6)',
+                        'rgba(239, 68, 68, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#a0aabf' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#a0aabf' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#ffffff' } },
+                    title: {
+                        display: true,
+                        text: 'Global EPI Water Scores (2024)',
+                        color: '#ffffff'
+                    }
+                }
+            }
+        });
+    }
 });
