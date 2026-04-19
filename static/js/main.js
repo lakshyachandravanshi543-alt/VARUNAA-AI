@@ -292,4 +292,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+
+    // --- MARINE IMPACT CHART INITIALIZATION ---
+    const marineCtx = document.getElementById('marineChart');
+    if(marineCtx) {
+        new Chart(marineCtx, {
+            type: 'line',
+            data: {
+                labels: ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: 'Average Pollutant Concentration (mg/L)',
+                        data: [45, 52, 60, 68, 75, 85, 78, 95, 110, 125, 140],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Marine Population Viability (%)',
+                        data: [90, 88, 82, 75, 68, 60, 65, 50, 42, 35, 28],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { 
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: 'Pollutants (mg/L)', color: '#ef4444' },
+                        ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } 
+                    },
+                    y1: { 
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: 'Population Viability (%)', color: '#3b82f6' },
+                        ticks: { color: '#3b82f6' }, grid: { drawOnChartArea: false } 
+                    }
+                },
+                plugins: { legend: { labels: { color: '#cbd5e1' } } }
+            }
+        });
+    }
 });
