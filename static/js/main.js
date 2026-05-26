@@ -410,6 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    });
+
     // --- REMEDIATION ACTION PLAN SCREEN TRANSITIONS ---
     const viewCleaningStrategyBtn = document.getElementById('view-cleaning-strategy-btn');
     const remediationPlanView = document.getElementById('remediation-plan-view');
