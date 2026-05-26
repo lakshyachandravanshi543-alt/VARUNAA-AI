@@ -213,6 +213,7 @@
                             <div id="remediation-content" class="remediation-content-text">
                                 --
                             </div>
+                            <button id="view-cleaning-strategy-btn" class="btn-primary" style="margin-top: 1.5rem;">View Cleaning Strategy</button>
                         </div>
                     </div>
                 </div>
@@ -248,6 +249,93 @@
             </div>
         </section>
     </main>
+
+    <!-- REMEDIATION ACTION PLAN SCREEN (Apple MacBook Neo Style) -->
+    <div id="remediation-plan-view" class="remediation-plan-screen" style="display: none;">
+        <div class="remediation-plan-container">
+            <!-- Header Section -->
+            <header class="remediation-header">
+                <button id="back-to-report-btn" class="btn-ghost">← Back to Scientific Report</button>
+                <div class="remediation-title-wrap">
+                    <h1 class="remediation-title">Remediation Action Plan.</h1>
+                    <p class="remediation-subtitle">AI-curated mitigation strategies based on detected pollutants.</p>
+                </div>
+            </header>
+            
+            <!-- Strategy Grid (2-Column Layout) -->
+            <div class="strategy-grid-remediation">
+                <!-- Left Card: Cost-Effective & Rapid Deployment -->
+                <div class="strategy-card card-snow">
+                    <span class="card-eyebrow">Immediate Deployment</span>
+                    <h2 class="card-headline">Cost-Effective & Rapid</h2>
+                    <p class="card-purpose">High-impact, budget-friendly local intervention methods.</p>
+                    
+                    <div class="strategy-items">
+                        <div class="strategy-item">
+                            <div class="item-icon">🦠</div>
+                            <div class="item-text">
+                                <span class="item-title">Bioremediation:</span>
+                                <span class="item-desc">Introduction of specific microbial cultures to eat organic waste.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🌱</div>
+                            <div class="item-text">
+                                <span class="item-title">Constructed Wetlands:</span>
+                                <span class="item-desc">Floating plant beds to naturally filter heavy metals.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">💨</div>
+                            <div class="item-text">
+                                <span class="item-title">Targeted Aeration:</span>
+                                <span class="item-desc">Low-cost mechanical aerators to immediately boost DO levels.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Card: Advanced Global Technologies -->
+                <div class="strategy-card card-snow">
+                    <div class="card-header-row">
+                        <span class="card-eyebrow">Advanced Engineering</span>
+                        <span class="premium-badge-text">Premium Solution</span>
+                    </div>
+                    <h2 class="card-headline">Advanced Global Technologies</h2>
+                    <p class="card-purpose">Cutting-edge technologies deployed in leading international waters.</p>
+                    
+                    <div class="strategy-items">
+                        <div class="strategy-item">
+                            <div class="item-icon">🧼</div>
+                            <div class="item-text">
+                                <span class="item-title">Nanobubble Generators (Japan/EU):</span>
+                                <span class="item-desc">Infuses microscopic oxygen bubbles that remain suspended for months, breaking down deep-layer toxins without chemicals.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🚢</div>
+                            <div class="item-text">
+                                <span class="item-title">Autonomous Interceptor Vessels (Netherlands):</span>
+                                <span class="item-desc">Solar-powered, AI-guided conveyor systems for mass solid-waste extraction.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🔊</div>
+                            <div class="item-text">
+                                <span class="item-title">Ultrasonic Algae Control:</span>
+                                <span class="item-desc">Emits specific sound frequencies to safely destroy harmful algal blooms without harming fish.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="remediation-footer">
+                <button id="download-pdf-btn" class="btn-primary btn-large">Download Full Implementation PDF</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="app-footer">
         <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>

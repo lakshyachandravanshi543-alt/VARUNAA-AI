@@ -410,6 +410,57 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    });
+    // --- REMEDIATION ACTION PLAN SCREEN TRANSITIONS ---
+    const viewCleaningStrategyBtn = document.getElementById('view-cleaning-strategy-btn');
+    const remediationPlanView = document.getElementById('remediation-plan-view');
+    const backToReportBtn = document.getElementById('back-to-report-btn');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn');
+
+    if (viewCleaningStrategyBtn && remediationPlanView) {
+        viewCleaningStrategyBtn.addEventListener('click', () => {
+            remediationPlanView.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Lock background scrolling
+            remediationPlanView.scrollTop = 0;
+        });
+    }
+
+    if (backToReportBtn && remediationPlanView) {
+        backToReportBtn.addEventListener('click', () => {
+            remediationPlanView.style.display = 'none';
+            document.body.style.overflow = ''; // Restore background scrolling
+        });
+    }
+
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', () => {
+            const locName = currentReportLog ? currentReportLog.title : 'Custom Location';
+            const logTime = currentReportLog ? currentReportLog.timestamp : new Date().toISOString();
+            const logVerdict = currentReportLog ? currentReportLog.verdict : 'Pending Classification';
+            
+            // Build text payload representing the implementation PDF document
+            const textDoc = `VARUNA AI REMEDIATION SYSTEM COMPLIANCE REPORT\n` +
+                            `==================================================\n` +
+                            `Site Location: ${locName}\n` +
+                            `Timestamp: ${logTime}\n` +
+                            `Inferred Impurity Class: ${logVerdict}\n\n` +
+                            `MITIGATION PROTOCOL ACTION ITEMS:\n\n` +
+                            `[1] LOCAL COST-EFFECTIVE INTERVENTIONS:\n` +
+                            `  - Bioremediation: Culture inoculations matching microbial respiration needs.\n` +
+                            `  - Constructed Wetlands: Floating botanical filters (rhizofiltration).\n` +
+                            `  - Targeted Aeration: Solar mechanical aerators for instant oxygenation.\n\n` +
+                            `[2] PREMIUM ADVANCED GLOBAL SYSTEMS:\n` +
+                            `  - Nanobubble Generators (Japan/EU): Suspended hyper-oxygenated systems.\n` +
+                            `  - Autonomous Interceptor Vessels (Netherlands): AI-guided debris collection.\n` +
+                            `  - Ultrasonic Algae Control: Frequential cyanobacteria cell lysis.\n`;
+            
+            const blob = new Blob([textDoc], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Varuna_Remediation_Action_Plan_${locName.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
 
 });
