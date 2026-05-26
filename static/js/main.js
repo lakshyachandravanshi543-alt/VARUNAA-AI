@@ -1,381 +1,254 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    const resultsContainer = document.getElementById('results-display');
-    const liveToggle = document.getElementById('live-mode-toggle');
-    const mapContainer = document.getElementById('map');
-    const manualInputContainer = document.getElementById('manual-input-container');
-    const toggleDesc = document.getElementById('toggle-desc');
+    // UI Elements
+    const tabDirectory = document.getElementById('tab-directory');
+    const tabCustom = document.getElementById('tab-custom');
     
-    // CSV History Log tracking
-    let historyLog = [];
+    const panelDirectory = document.getElementById('directory-panel');
+    const panelCustom = document.getElementById('custom-panel');
     
-    // UI Update logic
-    function renderResult(dataObj) {
-        if (!dataObj || !dataObj.prediction) return;
-        const result = dataObj.prediction;
+    const riverSelect = document.getElementById('river-select');
+    const generateReportBtn = document.getElementById('generate-report-btn');
+    
+    const customProbeForm = document.getElementById('custom-probe-form');
+    const reportLoader = document.getElementById('report-loader');
+    const reportSection = document.getElementById('scientific-report-section');
+    
+    // Report Detail Fields
+    const reportBadge = document.getElementById('report-badge');
+    const reportRiverName = document.getElementById('report-river-name');
+    const reportTimestamp = document.getElementById('report-timestamp');
+    
+    const metricPh = document.getElementById('metric-ph');
+    const metricDo = document.getElementById('metric-do');
+    const metricTurb = document.getElementById('metric-turb');
+    const metricTemp = document.getElementById('metric-temp');
+    
+    const pollutantsList = document.getElementById('pollutants-list');
+    const remediationContent = document.getElementById('remediation-content');
+    const downloadCsvBtn = document.getElementById('download-csv-btn');
+
+    // Local report log history for CSV exporting
+    let currentReportLog = null;
+
+    // --- TAB NAVIGATION SWITCHING ---
+    const switchTab = (activeTab, inactiveTab, activePanel, inactivePanel) => {
+        activeTab.classList.add('active');
+        activeTab.setAttribute('aria-selected', 'true');
+        inactiveTab.classList.remove('active');
+        inactiveTab.setAttribute('aria-selected', 'false');
         
-        let headerTitle = dataObj.name ? `📌 ${dataObj.name}` : "📡 Live Physical Hardware Ping";
+        activePanel.style.display = 'block';
+        activePanel.classList.add('active');
+        inactivePanel.style.display = 'none';
+        inactivePanel.classList.remove('active');
         
-        // Log to history for CSV download
-        historyLog.push({
-            timestamp: new Date().toISOString(),
-            riverName: dataObj.name || "Local Hardware Node",
-            ph: dataObj.raw_sensors.ph,
-            do: dataObj.raw_sensors.do.toFixed(1),
-            turbidity: dataObj.raw_sensors.turbidity,
-            temp: dataObj.raw_sensors.temperature,
-            prediction: result.pollutant
-        });
-        if(historyLog.length > 150) historyLog.shift(); // keep last 150 logs
-        
-        let marineStatus = "";
-        let marineColor = "";
-        let doLevel = parseFloat(dataObj.raw_sensors.do);
+        // Hide report when switching tabs to reset UX state
+        reportSection.style.display = 'none';
+    };
 
-        if (doLevel > 5.5) {
-            marineStatus = "🐟 Thriving Habitat: Oxygen levels support all local fish (Rohu, Catla) and sensitive aquatic species.";
-            marineColor = "#10b981";
-        } else if (doLevel >= 3.0) {
-            marineStatus = "⚠️ Hypoxic Stress: Fish are struggling to breathe. Sensitive species are migrating away or dying.";
-            marineColor = "#f59e0b";
-        } else {
-            marineStatus = "💀 CRITICAL (Asphyxiation Zone): Lethal oxygen depletion. Imminent localized mass fish-kill event.";
-            marineColor = "#ef4444";
-        }
-        
-        // Build the specific pollutants string
-        let pollutantsHtml = '';
-        if (result.specific_pollutants && result.specific_pollutants.length > 0) {
-            let listItems = result.specific_pollutants.map(p => `<li style="margin-bottom: 4px;">• ${p}</li>`).join('');
-            pollutantsHtml = `
-                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 1.5rem; text-align: left; border-left: 3px solid var(--accent-blue);">
-                    <span style="font-size: 0.85rem; color: #a0aabf; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px;">Specific Biological/Chemical Threats:</span>
-                    <ul style="list-style-type: none; padding-left: 10px; margin: 0; color: #cbd5e1; font-size: 0.95rem;">
-                        ${listItems}
-                    </ul>
-                </div>
-            `;
-        }
-        
-        resultsContainer.className = `results-container status-${result.color}`;
-        resultsContainer.innerHTML = `
-            <div style="font-size:1.1rem; color:#cbd5e1; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-                ${headerTitle}
-            </div>
-            ${dataObj.weather ? `<div style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; padding: 8px 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">${dataObj.weather}</div>` : ''}
-            <div class="result-status" style="font-size: 1.8rem; margin-bottom: 0.5rem;">${result.pollutant}</div>
-            <div style="font-weight: bold; margin-bottom: 1.5rem; color: #cbd5e1; letter-spacing: 1px;">POLLUTANT STATE: <span style="color:white;">${result.state}</span></div>
-            ${pollutantsHtml}
-            
-            <div style="display:flex; justify-content:center; gap: 15px; margin-bottom: 1rem; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
-                <span><b>pH:</b> ${dataObj.raw_sensors.ph}</span>
-                <span><b>DO:</b> ${dataObj.raw_sensors.do.toFixed(1)} mg/L</span>
-                <span><b>Turb:</b> ${dataObj.raw_sensors.turbidity} NTU</span>
-                <span><b>Temp:</b> ${dataObj.raw_sensors.temperature}°C</span>
-            </div>
-
-            <div style="margin-bottom: 1.5rem; padding: 12px; background: rgba(0,0,0,0.3); border-left: 4px solid ${marineColor}; border-radius: 6px;">
-                <div style="font-size: 0.85rem; color: #cbd5e1; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">Marine Life Viability Index</div>
-                <div style="color: ${marineColor}; font-weight: 600; font-size: 0.95rem;">${marineStatus}</div>
-            </div>
-
-            <div class="result-message" style="margin-bottom: 1rem;">${result.details}</div>
-            <button id="toggle-cleaning-btn" style="width: 100%; padding: 12px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: all 0.3s ease;">
-                🔍 View Localized Cleaning Strategy
-            </button>
-            
-            <div id="cleaning-strategy-panel" style="display: none; padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; margin-top: 10px; color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; text-align: left;">
-                <strong style="color: #10b981; font-size: 1.05rem; display: block; margin-bottom: 8px; text-transform: uppercase;">Recommended Mitigation Process:</strong>
-                ${result.action}
-            </div>
-        `;
-
-        const toggleBtn = document.getElementById('toggle-cleaning-btn');
-        const strategyPanel = document.getElementById('cleaning-strategy-panel');
-        if (toggleBtn && strategyPanel) {
-            toggleBtn.addEventListener('click', () => {
-                if (strategyPanel.style.display === 'none') {
-                    strategyPanel.style.display = 'block';
-                    toggleBtn.style.background = '#10b981';
-                    toggleBtn.style.color = '#ffffff';
-                    toggleBtn.innerHTML = 'Hide Cleaning Strategy ▲';
-                } else {
-                    strategyPanel.style.display = 'none';
-                    toggleBtn.style.background = 'rgba(16, 185, 129, 0.2)';
-                    toggleBtn.style.color = '#10b981';
-                    toggleBtn.innerHTML = '🔍 View Localized Cleaning Strategy';
-                }
-            });
-        }
-    }
-
-    // --- MAP INITIALIZATION ---
-    // Use CartoDB Dark Matter tiles for a sleek AI detective look
-    const map = L.map('map').setView([20, 0], 2);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
-    }).addTo(map);
-
-    let markers = {};
-    let selectedRiverId = null;
-
-    // --- CUSTOM MAP ICONS ---
-    const getIcon = (color) => {
-        let hex = "#ef4444";
-        if(color === 'green') hex = "#10b981";
-        if(color === 'orange') hex = "#f59e0b";
-        if(color === 'blue') hex = "#3b82f6";
-        
-        return L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background-color:${hex}; width:20px; height:20px; border-radius:50%; border: 3px solid white; box-shadow: 0 0 10px ${hex};"></div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-        });
-    }
-
-    let pollingInterval = null;
-    let isPhysicalMode = false;
-
-    async function pollNetworkState() {
-        if(isPhysicalMode) return;
-        try {
-            const response = await fetch('/api/network_state');
-            const data = await response.json();
-            
-            // Update map markers
-            data.forEach(river => {
-                if(!markers[river.id]) {
-                    // Create marker if it doesn't exist
-                    markers[river.id] = L.marker([river.lat, river.lng])
-                        .addTo(map)
-                        .on('click', () => {
-                            selectedRiverId = river.id;
-                            renderResult(river);
-                        });
-                }
-                
-                // Update marker color based on AI prediction
-                markers[river.id].setIcon(getIcon(river.prediction.color));
-                markers[river.id].bindTooltip(`<b>${river.name}</b><br>Status: ${river.prediction.pollutant}`, {direction: 'top'});
-
-                // If this is the currently selected river, update the side panel live
-                if (selectedRiverId === river.id) {
-                    renderResult(river);
-                }
-            });
-
-            // If no river selected yet, auto-select the first one
-            if(!selectedRiverId && data.length > 0) {
-                selectedRiverId = data[0].id;
-                renderResult(data[0]);
-                map.flyTo([data[0].lat, data[0].lng], 5);
-            }
-
-        } catch(e) {
-            console.error("Failed to poll network state", e);
-        }
-    }
-
-    async function pollPhysicalState() {
-        if(!isPhysicalMode) return;
-        try {
-            const response = await fetch('/api/live');
-            const data = await response.json();
-            renderResult(data);
-        } catch(e) {
-            console.error("Failed to poll physical state", e);
-        }
-    }
-
-    // Startup
-    pollNetworkState();
-    pollingInterval = setInterval(pollNetworkState, 5000);
-
-    // --- MODE TOGGLE LOGIC ---
-    liveToggle.addEventListener('change', (e) => {
-        isPhysicalMode = e.target.checked;
-        clearInterval(pollingInterval);
-
-        if (isPhysicalMode) {
-            // Switch to Physical Mode
-            mapContainer.style.display = 'none';
-            manualInputContainer.style.display = 'block';
-            toggleDesc.innerHTML = `Currently listening to <b>Live Local Hardware (esp32/simulate_buoy.py)</b> via '/api/predict'.`;
-            
-            resultsContainer.innerHTML = `<p class="placeholder-text">Waiting for hardware Ping...</p>`;
-            resultsContainer.className = 'results-container empty';
-            
-            pollingInterval = setInterval(pollPhysicalState, 2000);
-        } else {
-            // Switch to Virtual Network Mode
-            mapContainer.style.display = 'block';
-            manualInputContainer.style.display = 'none';
-            map.invalidateSize(); // Fix Leaflet render bug when container is un-hidden
-            toggleDesc.innerHTML = `Currently showing <b>Global Virtual River Network (Digital Twin Map)</b>. Toggle to switch to single local physical hardware stream.`;
-            
-            selectedRiverId = null; // reset selection
-            pollingInterval = setInterval(pollNetworkState, 5000);
-            pollNetworkState(); // immediate call
-        }
+    tabDirectory.addEventListener('click', () => {
+        switchTab(tabDirectory, tabCustom, panelDirectory, panelCustom);
     });
 
-    // Sync sliders for manual override in physical mode
+    tabCustom.addEventListener('click', () => {
+        switchTab(tabCustom, tabDirectory, panelCustom, panelDirectory);
+    });
+
+    // --- RANGE SLIDER SYNC ---
     const fields = ['ph', 'do', 'turbidity', 'temperature'];
     fields.forEach(id => {
         const slider = document.getElementById(`${id}-slider`);
         const numInput = document.getElementById(id);
-        if(slider && numInput) {
-            slider.addEventListener('input', (e) => numInput.value = e.target.value);
-            numInput.addEventListener('input', (e) => slider.value = e.target.value);
+        if (slider && numInput) {
+            // Sync slider to text input
+            slider.addEventListener('input', (e) => {
+                numInput.value = e.target.value;
+            });
+            // Sync text input to slider
+            numInput.addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                    slider.value = val;
+                }
+            });
         }
     });
 
-    // CSV Download Functionality
-    document.getElementById('download-csv-btn').addEventListener('click', () => {
-        if(historyLog.length === 0) {
-            alert("Waiting for sensor data. Give the system a few seconds to log physical data.");
+    // --- SCIENTIFIC DATA RENDER ---
+    const displayReport = (title, rawSensors, prediction, weatherAlert) => {
+        // Hide loader
+        reportLoader.style.display = 'none';
+        
+        // Setup meta details
+        reportRiverName.innerText = title;
+        const now = new Date();
+        reportTimestamp.innerText = `Inference Timestamp: ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | Status: Active Telemetry`;
+        
+        // Badge color mapping
+        reportBadge.className = 'badge'; // reset
+        if (prediction.color === 'green') {
+            reportBadge.classList.add('badge-green');
+            reportBadge.innerText = 'Safe Baseline';
+        } else if (prediction.color === 'red') {
+            reportBadge.classList.add('badge-red');
+            reportBadge.innerText = 'Critical Hazard';
+        } else if (prediction.color === 'orange') {
+            reportBadge.classList.add('badge-orange');
+            reportBadge.innerText = 'High Pollution';
+        } else {
+            reportBadge.classList.add('badge-blue');
+            reportBadge.innerText = 'Caution Required';
+        }
+        
+        if (weatherAlert) {
+            reportBadge.innerText += ` | ${weatherAlert}`;
+        }
+
+        // Section A: Raw parameters
+        metricPh.innerText = parseFloat(rawSensors.ph).toFixed(2);
+        metricDo.innerText = `${parseFloat(rawSensors.do).toFixed(1)} mg/L`;
+        metricTurb.innerText = `${Math.round(rawSensors.turbidity)} NTU`;
+        metricTemp.innerText = `${parseFloat(rawSensors.temperature).toFixed(1)}°C`;
+        
+        // Section B: Detected Pollutants
+        pollutantsList.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'pollutant-card';
+        
+        // Scientific compound listing
+        const chemList = (prediction.specific_pollutants || []).join(', ');
+        
+        card.innerHTML = `
+            <div class="pollutant-header">
+                <span class="pollutant-cat">${prediction.pollutant}</span>
+                <span class="pollutant-formula">${prediction.state || 'Liquid'}</span>
+            </div>
+            <p class="pollutant-sci-def">
+                <strong>Ecosystem Profile:</strong> ${prediction.chemical_definition || prediction.details}
+            </p>
+            <div class="pollutant-limits">
+                <div class="limit-item"><strong>Chemical Compounds Detected:</strong> ${chemList}</div>
+                <div class="limit-item"><strong>Permissible Regulatory Limits:</strong> ${prediction.threshold || 'N/A'}</div>
+            </div>
+        `;
+        pollutantsList.appendChild(card);
+        
+        // Section C: Actionable Remediation
+        remediationContent.innerHTML = prediction.action || 'No critical remediation required at this telemetry index.';
+        
+        // Reveal Section
+        reportSection.style.display = 'block';
+        reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Save state for CSV downloading
+        currentReportLog = {
+            title: title,
+            ph: rawSensors.ph,
+            do: rawSensors.do,
+            turbidity: rawSensors.turbidity,
+            temp: rawSensors.temperature,
+            verdict: prediction.pollutant,
+            compounds: chemList,
+            timestamp: now.toISOString()
+        };
+    };
+
+    // --- DIRECTORY INFERENCE QUERY ---
+    generateReportBtn.addEventListener('click', async () => {
+        const selectedId = riverSelect.value;
+        if (!selectedId) {
+            alert('Please select a river system from the directory first.');
             return;
         }
-        
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Timestamp,Node/River,pH,DO (mg/L),Turbidity (NTU),Temperature (C),AI_Inference\n";
-        
-        historyLog.forEach(row => {
-            csvContent += `${row.timestamp},"${row.riverName}",${row.ph},${row.do},${row.turbidity},${row.temp},"${row.prediction}"\n`;
-        });
-        
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `AquaSense_Compliance_Log_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        // Show Loader
+        reportSection.style.display = 'none';
+        reportLoader.style.display = 'flex';
+
+        try {
+            // Query network state API from app.py
+            const response = await fetch('/api/network_state');
+            if (!response.ok) throw new Error('API server returned error.');
+            
+            const data = await response.json();
+            const selectedRiver = data.find(r => r.id === selectedId);
+            
+            if (selectedRiver) {
+                // Short timeout for realistic Apple-style dashboard inference load transition
+                setTimeout(() => {
+                    displayReport(
+                        selectedRiver.name,
+                        selectedRiver.raw_sensors,
+                        selectedRiver.prediction,
+                        selectedRiver.weather
+                    );
+                }, 600);
+            } else {
+                throw new Error('River data not found in telemetry array.');
+            }
+        } catch (error) {
+            reportLoader.style.display = 'none';
+            alert(`Error querying inference array: ${error.message}`);
+        }
     });
 
-    document.getElementById('prediction-form').addEventListener('submit', async (e) => {
+    // --- CUSTOM PROBE FORM SUBMIT ---
+    customProbeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const data = {};
-        fields.forEach(f => data[f] = document.getElementById(f).value);
+        
+        // Gather input data
+        const payload = {
+            ph: parseFloat(document.getElementById('ph').value),
+            do: parseFloat(document.getElementById('do').value),
+            turbidity: parseFloat(document.getElementById('turbidity').value),
+            temperature: parseFloat(document.getElementById('temperature').value)
+        };
+
+        // Show Loader
+        reportSection.style.display = 'none';
+        reportLoader.style.display = 'flex';
 
         try {
             const response = await fetch('/api/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(payload)
             });
-            const result = await response.json();
-            // In physical mode, the dashboard will catch this via the polling anyway, 
-            // but we can manually force an update here for visual zip.
+
+            if (!response.ok) throw new Error('Server classification model failed.');
+            const prediction = await response.json();
+            
+            setTimeout(() => {
+                displayReport(
+                    "Custom Probe Location",
+                    payload,
+                    prediction,
+                    null
+                );
+            }, 600);
+
         } catch (error) {
-            console.error('Error:', error);
+            reportLoader.style.display = 'none';
+            alert(`Error classifying custom inputs: ${error.message}`);
         }
     });
 
-    // --- EPI CHART INITIALIZATION ---
-    const ctx = document.getElementById('epiChart');
-    if(ctx) {
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Finland', 'UK', 'USA', 'India', 'Pakistan', 'Chad'],
-                datasets: [{
-                    label: 'Water Quality Score (100 is best)',
-                    data: [98, 85, 78, 24, 21, 15],
-                    backgroundColor: [
-                        'rgba(16, 185, 129, 0.6)',
-                        'rgba(59, 130, 246, 0.6)',
-                        'rgba(59, 130, 246, 0.6)',
-                        'rgba(245, 158, 11, 0.6)',
-                        'rgba(239, 68, 68, 0.6)',
-                        'rgba(239, 68, 68, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(239, 68, 68, 1)',
-                        'rgba(239, 68, 68, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#a0aabf' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#a0aabf' }
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: '#ffffff' } },
-                    title: {
-                        display: true,
-                        text: 'Global EPI Water Scores (2024)',
-                        color: '#ffffff'
-                    }
-                }
-            }
-        });
-    }
+    // --- CSV LOG EXPORTER ---
+    downloadCsvBtn.addEventListener('click', () => {
+        if (!currentReportLog) return;
+        
+        const header = "Timestamp,Location,pH,DO (mg/L),Turbidity (NTU),Temperature (C),AI Inference,Compounds Detected\n";
+        const row = `"${currentReportLog.timestamp}","${currentReportLog.title}",${currentReportLog.ph},${currentReportLog.do},${currentReportLog.turbidity},${currentReportLog.temp},"${currentReportLog.verdict}","${currentReportLog.compounds}"\n`;
+        
+        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(header + row);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", csvContent);
+        link.setAttribute("download", `Varuna_Scientific_Report_${currentReportLog.title.replace(/\s+/g, '_')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
 
-
-    // --- MARINE IMPACT CHART INITIALIZATION ---
-    const marineCtx = document.getElementById('marineChart');
-    if(marineCtx) {
-        new Chart(marineCtx, {
-            type: 'line',
-            data: {
-                labels: ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
-                datasets: [
-                    {
-                        label: 'Average Pollutant Concentration (mg/L)',
-                        data: [45, 52, 60, 68, 75, 85, 78, 95, 110, 125, 140],
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Marine Population Viability (%)',
-                        data: [90, 88, 82, 75, 68, 60, 65, 50, 42, 35, 28],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { 
-                        type: 'linear', display: true, position: 'left',
-                        title: { display: true, text: 'Pollutants (mg/L)', color: '#ef4444' },
-                        ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } 
-                    },
-                    y1: { 
-                        type: 'linear', display: true, position: 'right',
-                        title: { display: true, text: 'Population Viability (%)', color: '#3b82f6' },
-                        ticks: { color: '#3b82f6' }, grid: { drawOnChartArea: false } 
-                    }
-                },
-                plugins: { legend: { labels: { color: '#cbd5e1' } } }
-            }
-        });
-    }
 });

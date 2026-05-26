@@ -29,76 +29,83 @@ lock = threading.Lock()
 # Highly detailed pollution mappings shared across all instances
 CLASSES = {
     0: {
-        "pollutant": "Clean Water / No Major Impurities Found",
-        "specific_pollutants": ["None specific"],
+        "pollutant": "Clean Water / Baseline Condition",
+        "specific_pollutants": ["Dissolved Oxygen (O₂)", "Trace Carbonates (CO₃²⁻)", "Dissolved Silica (SiO₂)"],
         "state": "Liquid (Clear)",
         "color": "green",
-        "details": "The AI detected normal pH, healthy dissolved oxygen, and minimal turbidity. No significant pollutants match this chemical signature.",
-        "action": "Safe for standard uses. Continue basic monitoring."
+        "details": "The system detected optimal pH, healthy dissolved oxygen, and minimal turbidity. Water parameters remain within normal baseline ranges for freshwater ecosystems. Dissolved oxygen levels support robust respiration across sensitive aquatic trophic levels.",
+        "action": "Maintain routine baseline surveillance. Protect riparian vegetation to sustain thermal insulation and natural filtration gradients.",
+        "chemical_definition": "Natural H₂O containing balanced dissolved gases and trace mineral carbonates. No abnormal synthetic or heavy organic pollutant signatures are detected.",
+        "threshold": "DO > 5.0 mg/L, Turbidity < 10 NTU, Lead < 0.01 mg/L"
     },
     1: {
-        "pollutant": "Industrial Heavy Metals",
-        "specific_pollutants": ["Lead (Pb)", "Arsenic (As)", "Mercury", "Cadmium", "Industrial Acids"],
-        "state": "Dissolved Liquid (Toxic)",
+        "pollutant": "Industrial Heavy Metal Bioaccumulation",
+        "specific_pollutants": ["Lead (Pb²⁺)", "Arsenic (As³⁺)", "Cadmium (Cd²⁺)", "Mercury (Hg²⁺)"],
+        "state": "Dissolved Ions (Highly Toxic)",
         "color": "red",
-        "details": "AI Signature Match: Extreme pH combined with elevated temperatures and slight turbidity strongly indicates industrial factory discharge containing toxic heavy metals.",
-        "action": "<b>1. Source Isolation:</b> Dispatch municipal team to halt upstream factory discharge.<br><b>2. Phytoremediation:</b> Deploy Water Hyacinth (Eichhornia crassipes) or Vetiver grass along banks to naturally absorb heavy metal ions.<br><b>3. Biosorbents:</b> Disperse crushed coconut shells and sugarcane bagasse into the water column to bind with free heavy metals rapidly."
+        "details": "System alert: Extreme pH deviation coupled with thermal discharge indicates unmitigated industrial effluent. Highly toxic metal ions represent severe bioaccumulation risks for trophic networks.",
+        "action": "<b>1. Source Containment:</b> Dispatch compliance enforcement to locate and plug upstream industrial discharges.<br><b>2. Phytoremediation:</b> Deploy Vetiver Grass (Chrysopogon zizanioides) and Water Hyacinth (Eichhornia crassipes) to extract dissolved cations via rhizofiltration.<br><b>3. Active Sorption:</b> Apply activated bio-char filters along channel bottlenecks to bind free metal ions.",
+        "chemical_definition": "Divalent and trivalent metallic cations (e.g., Pb²⁺, As³⁺, Cd²⁺). These heavy metals inhibit key cellular enzymes, disrupt osmotic regulation, and bioaccumulate exponentially in aquatic fatty tissues, leading to systemic neurotoxicity and reproductive failure in teleost fish.",
+        "threshold": "Pb < 0.01 mg/L, As < 0.01 mg/L, Cd < 0.003 mg/L"
     },
     2: {
-        "pollutant": "Untreated Biological Sewage",
-        "specific_pollutants": ["Fecal Coliforms", "E. coli Bacteria", "Ammonia", "Raw Organic Waste"],
-        "state": "Liquid & Suspended Solids",
+        "pollutant": "Untreated Organic Sewage & Pathogens",
+        "specific_pollutants": ["Ammonia (NH₃)", "Ammonium (NH₄⁺)", "Hydrogen Sulfide (H₂S)", "Fecal Coliforms"],
+        "state": "Liquid & Suspended Organic Matter",
         "color": "orange",
-        "details": "AI Signature Match: Dangerously depleted oxygen combined with heavy turbidity indicates bacteria breaking down massive amounts of biological waste (feces/sewage).",
-        "action": "<b>1. Artificial Aeration:</b> Deploy floating solar aerators to instantly restore Dissolved Oxygen and stop fish kills.<br><b>2. Constructed Wetlands:</b> Implement Root Zone Treatment Systems using native reeds to filter solids.<br><b>3. Bio-Augmentation:</b> Release Effective Microorganisms (EM) or Bokashi mud balls to safely accelerate the breakdown of organic sewage."
+        "details": "Critical signature: Depleted dissolved oxygen combined with high turbidity indicates heavy biological loading. Bacterial respiration is consuming available oxygen faster than atmospheric re-aeration can replenish it.",
+        "action": "<b>1. Forced Aeration:</b> Install floating mechanical solar-powered aerators to break the water interface and inject oxygen.<br><b>2. Biological Remediation:</b> Disperse nitrifying bacterial inoculants (e.g., Nitrosomonas) to accelerate organic digestion.<br><b>3. Constructed Wetlands:</b> Route flows through reed beds (Typha angustifolia) for natural sedimentation and nutrient uptake.",
+        "chemical_definition": "Nitrogenous organic wastes and dissolved ammonia (NH₃). The biodegradation of carbonaceous waste by heterotrophic bacteria consumes dissolved oxygen (DO), inducing acute localized hypoxia. High ammonia (NH₃) damages fish gills, limits oxygen-binding efficiency, and causes asphyxiation.",
+        "threshold": "NH₃ < 0.5 mg/L, Biochemical Oxygen Demand (BOD) < 3.0 mg/L"
     },
     3: {
-        "pollutant": "Petroleum / Oil Spill",
-        "specific_pollutants": ["Crude Oil Substrates", "Diesel/Motor Oil", "Petrochemical Greases"],
-        "state": "Liquid (Surface Slick)",
+        "pollutant": "Petrochemical Hydrocarbon Slick",
+        "specific_pollutants": ["Benzene (C₆H₆)", "Toluene (C₇H₈)", "Polycyclic Aromatic Hydrocarbons (PAHs)"],
+        "state": "Liquid (Surface LNAPL Film)",
         "color": "blue",
-        "details": "AI Signature Match: Severely blocked oxygen transfer but moderate turbidity indicates a layer of oil capping the water surface and suffocating the river.",
-        "action": "<b>1. Containment Booms:</b> Deploy cheap, natural floating booms made of sugarcane bagasse or human hair mats to trap the slick.<br><b>2. Absorption:</b> Spread Coir pith (coconut fiber) across the surface to naturally soak up the petroleum.<br><b>3. Oil Skimming:</b> Physically extract the absorbed clumps before they sink."
+        "details": "Inference alert: Normal pH but depressed oxygen transfer and moderate turbidity indicates a hydrophobic oil barrier at the air-water interface, suffocating benthic and pelagic life.",
+        "action": "<b>1. Hydrophobic Booming:</b> Deploy floating containment barriers packed with agricultural waste (sugarcane bagasse) to trap the slick.<br><b>2. Mechanical Skimming:</b> Deploy drum skimmers to extract the accumulated surface layer.<br><b>3. Bioremediation:</b> Inoculate with hydrocarbonoclastic microbes (e.g., Alcanivorax) to metabolize volatile organics.",
+        "chemical_definition": "Light Non-Aqueous Phase Liquids (LNAPLs) consisting of volatile aromatic hydrocarbons (C₆H₆, C₇H₈) and heavy PAHs. This oil film forms a physical barrier that stops atmospheric oxygen exchange. Volatile aromatics are highly mutagenic, causing chromosomal damage in aquatic organisms.",
+        "threshold": "Total Petroleum Hydrocarbons (TPH) < 0.1 mg/L"
     },
     4: {
-        "pollutant": "Agricultural Fertilizer Runoff",
-        "specific_pollutants": ["Nitrates", "Phosphorus", "Toxic Cyanobacteria (Algal Bloom)"],
-        "state": "Dissolved Liquid / Algal Bloom",
+        "pollutant": "Agricultural Eutrophication Runoff",
+        "specific_pollutants": ["Nitrates (NO₃⁻)", "Orthophosphates (PO₄³⁻)", "Microcystin Cyanotoxins"],
+        "state": "Dissolved Nutrients & Cyanobacteria",
         "color": "orange",
-        "details": "AI Signature Match: Highly alkaline (basic) pH, reduced oxygen, and thick green cloudy turbidity indicates fertilizer causing extreme algal blooms.",
-        "action": "<b>1. Mechanical Harvesting:</b> Skim the thick algae off the surface to restore sunlight penetration.<br><b>2. Biological Control:</b> Introduce endemic algae-eating carp species (like native Rohu) to control regrowth.<br><b>3. Repurposing:</b> Convert the harvested toxic algae into safe agricultural compost or biogas fuel."
+        "details": "AI Signature: Highly alkaline pH, low dissolved oxygen, and green-cloudy turbidity indicating a severe nitrogen/phosphorus stimulated algal bloom.",
+        "action": "<b>1. Algicide Application:</b> Apply trace copper sulfate (CuSO₄) or hydrogen peroxide under strict dosage to lyse cyanobacteria.<br><b>2. Biomass Skimming:</b> Physically harvest surface algal mats to prevent mass decay and subsequent hypoxia.<br><b>3. Buffer Installation:</b> Establish riparian vetiver grass buffer zones along agricultural fields to absorb fertilizer runoff.",
+        "chemical_definition": "Soluble nitrates (NO₃⁻) and orthophosphates (PO₄³⁻). Excessive loading of these limiting nutrients causes rapid multiplication of photosynthetic cyanobacteria (eutrophication). The resulting thick canopy blocks sunlight, stopping deep photosynthesis. The subsequent decay of dead algae consumes all remaining DO, causing mass mortality.",
+        "threshold": "NO₃⁻ < 10.0 mg/L, PO₄³⁻ < 0.1 mg/L"
     },
     5: {
-        "pollutant": "Plastics & Municipal Solid Waste",
-        "specific_pollutants": ["Macro-plastics (Bags/Bottles)", "Suspended Microplastics", "Solid Urban Rubble"],
-        "state": "Solid Waste / Microplastics",
+        "pollutant": "Municipal Plastic & Suspended Solids",
+        "specific_pollutants": ["Microplastics (PE / PET / PP)", "Suspended Silt", "Anthropogenic Macro-debris"],
+        "state": "Particulate Suspended Solids",
         "color": "blue",
-        "details": "AI Signature Match: Normal pH and oxygen, but massive turbidity spikes indicate the presence of physical garbage and dense suspended microplastics blocking light.",
-        "action": "<b>1. Physical Barriers:</b> Construct low-cost bamboo trash booms across natural river bends to trap macro-plastics.<br><b>2. Civic Engagement:</b> Organize community 'Shramdaan' (volunteer cleanups) to haul trapped waste to banks.<br><b>3. Upcycling:</b> Route extracted plastics to local road-building or brick-making enterprises."
+        "details": "System alert: Normal chemical variables but massive turbidity spikes point to heavy physical debris and microplastics blocking light and degrading benthic habitats.",
+        "action": "<b>1. Passive Collection:</b> Construct floating bamboo or mesh trash booms across natural bends to catch macroplastics.<br><b>2. Sedimentation Basins:</b> Create upstream settling ponds to drop heavy silts out of suspension.<br><b>3. Community Interventions:</b> Implement trash tracking and route collected wastes to regional polymer recycling hubs.",
+        "chemical_definition": "Polyethylene (PE), Polyethylene Terephthalate (PET), and Polypropylene (PP) micro-fragments. Suspended solids block sunlight penetration, halting primary production. Microparticles clog the gills of filter-feeding species, causing mechanical damage, asphyxiation, and intestinal blockages.",
+        "threshold": "Total Suspended Solids (TSS) < 25.0 mg/L"
     }
 }
 
 # --- VIRTUAL RIVER NETWORK ---
-# Simulated live data for specific rivers to create a "Digital Twin" Map
 network_state = {}
 network_lock = threading.Lock()
 
 VIRTUAL_RIVERS = [
     {
-        "id": "ganges_1", "name": "Ganges River (Varanasi, India)", "lat": 25.3176, "lng": 82.9739,
+        "id": "narmada", "name": "Narmada River", "lat": 22.9734, "lng": 78.6569,
+        "base_ph": (7.2, 8.2), "base_do": (6.5, 8.5), "base_turb": (10, 30), "base_temp": (20, 24)
+    },
+    {
+        "id": "yamuna", "name": "Yamuna River", "lat": 28.6139, "lng": 77.2090,
+        "base_ph": (5.5, 7.0), "base_do": (0.5, 2.5), "base_turb": (200, 300), "base_temp": (23, 27)
+    },
+    {
+        "id": "ganga", "name": "Ganga River", "lat": 25.3176, "lng": 82.9739,
         "base_ph": (6.5, 7.5), "base_do": (2.0, 4.0), "base_turb": (150, 250), "base_temp": (24, 28)
-    },
-    {
-        "id": "thames_1", "name": "River Thames (London, UK)", "lat": 51.5072, "lng": -0.1276,
-        "base_ph": (7.0, 8.0), "base_do": (6.0, 9.0), "base_turb": (5, 15), "base_temp": (10, 15)
-    },
-    {
-        "id": "mississippi_1", "name": "Mississippi River (NOLA, USA)", "lat": 29.9511, "lng": -90.0715,
-        "base_ph": (6.8, 7.8), "base_do": (5.0, 7.0), "base_turb": (60, 120), "base_temp": (20, 26)
-    },
-    {
-        "id": "rhine_1", "name": "Rhine River (Cologne, Germany)", "lat": 50.9375, "lng": 6.9603,
-        "base_ph": (7.2, 8.2), "base_do": (7.0, 10.0), "base_turb": (2, 8), "base_temp": (12, 18)
     }
 ]
 
@@ -106,8 +113,12 @@ def run_inference(ph, do, turbidity, temp):
     """Helper to run the ML model."""
     if not model or not scaler:
         return CLASSES.get(0)
-    features = [float(ph), float(do), float(turbidity), float(temp)]
-    features_scaled = scaler.transform([features])
+    import pandas as pd
+    features = pd.DataFrame(
+        [[float(ph), float(do), float(turbidity), float(temp)]], 
+        columns=['ph', 'do', 'turbidity', 'temperature']
+    )
+    features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)[0]
     return CLASSES.get(int(prediction), CLASSES[0])
 

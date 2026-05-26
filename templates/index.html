@@ -3,202 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Water Quality Detector</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <title>Varuna AI — On-Demand Water Health Inference Engine</title>
+    <!-- Google Fonts: Inter for clean Apple typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <header class="app-header">
-            <h1><span class="gradient-text">AquaSense AI Detective</span></h1>
-            <p>Inferring hidden liquid and solid pollutants using 4 basic hardware sensors.</p>
-        </header>
+    <!-- Sleek Navigation Header -->
+    <header class="navbar">
+        <div class="navbar-content">
+            <span class="nav-logo">Varuna <span class="nav-logo-sub">AI</span></span>
+            <nav class="nav-tabs" role="tablist">
+                <button class="tab-btn active" id="tab-directory" role="tab" aria-selected="true" aria-controls="directory-panel">River Directory</button>
+                <button class="tab-btn" id="tab-custom" role="tab" aria-selected="false" aria-controls="custom-panel">Custom Probe Input</button>
+            </nav>
+        </div>
+    </header>
 
-        <main class="dashboard">
-            <!-- Mode Toggle Header -->
-            <div class="live-toggle-container" style="grid-column: 1 / -1; text-align: center; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
-                <label style="font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="live-mode-toggle" style="width: 20px; height: 20px; accent-color: var(--color-green);"> 
-                    Enable Live Physical Sensor Stream Override
-                </label>
-                <p id="toggle-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">Currently showing <b>Global Virtual River Network (Digital Twin Map)</b>. Toggle to switch to single local physical hardware stream.</p>
-            </div>
-
-            <!-- Left Panel: Map or Manual Input -->
-            <section class="panel" id="left-panel" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-                <div id="map" style="flex-grow: 1; height: 600px; width: 100%;"></div>
+    <main class="container">
+        <!-- HERO SECTION / DIRECTORY PANEL -->
+        <section id="directory-panel" class="tab-panel active" role="tabpanel">
+            <div class="hero-block">
+                <p class="hero-eyebrow">On-Demand Water Inference Engine</p>
+                <h1 class="hero-title">The health of our waters, in absolute detail.</h1>
+                <p class="hero-subtitle">Select a water system below to initiate a real-time chemical inference report. Powered by a high-validation Random Forest model analyzing key environmental markers.</p>
                 
-                <div id="manual-input-container" class="input-panel" style="display: none; padding: 2rem;">
-                    <h2 style="margin-top: 0;">Raw Hardware Sensor Data</h2>
-                <form id="prediction-form">
-                    
-                    <div class="category-section">
-                        <h3>Physical Sensor Probes</h3>
-                        <div class="input-group">
-                            <label for="ph">pH Level (Acidity/Alkalinity)</label>
-                            <div class="control-row">
+                <div class="directory-selector-box">
+                    <div class="select-wrapper">
+                        <select id="river-select" aria-label="Select River System">
+                            <option value="" disabled selected>Choose a River System...</option>
+                            <option value="narmada">Narmada River</option>
+                            <option value="yamuna">Yamuna River</option>
+                            <option value="ganga">Ganga River</option>
+                        </select>
+                    </div>
+                    <button id="generate-report-btn" class="btn-primary">Generate Scientific Report</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CUSTOM PROBE INPUT PANEL -->
+        <section id="custom-panel" class="tab-panel" role="tabpanel" style="display: none;">
+            <div class="hero-block">
+                <p class="hero-eyebrow">Manual Hardware Diagnostics</p>
+                <h1 class="hero-title">Direct Parameter Simulation</h1>
+                <p class="hero-subtitle">Input custom sensor voltage metrics manually to query the inference engine and generate synthetic report projections.</p>
+                
+                <form id="custom-probe-form" class="custom-probe-card">
+                    <div class="probe-grid">
+                        <div class="probe-input-group">
+                            <label for="ph">pH Level</label>
+                            <span class="probe-desc">Acidity & Alkalinity (0.0 – 14.0)</span>
+                            <div class="probe-control">
                                 <input type="range" id="ph-slider" min="0" max="14" step="0.1" value="7.2">
                                 <input type="number" id="ph" min="0" max="14" step="0.1" value="7.2" required>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label for="do">Dissolved Oxygen (DO) - mg/L</label>
-                            <div class="control-row">
+                        <div class="probe-input-group">
+                            <label for="do">Dissolved Oxygen (DO)</label>
+                            <span class="probe-desc">mg/L concentration (0.0 – 12.0)</span>
+                            <div class="probe-control">
                                 <input type="range" id="do-slider" min="0" max="12" step="0.1" value="6.5">
                                 <input type="number" id="do" min="0" max="12" step="0.1" value="6.5" required>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label for="turbidity">Turbidity (Cloudiness) - NTU</label>
-                            <div class="control-row">
+                        <div class="probe-input-group">
+                            <label for="turbidity">Turbidity</label>
+                            <span class="probe-desc">NTU cloudiness level (0 – 400)</span>
+                            <div class="probe-control">
                                 <input type="range" id="turbidity-slider" min="0" max="400" step="1" value="5">
                                 <input type="number" id="turbidity" min="0" max="400" step="1" value="5" required>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label for="temperature">Water Temperature - °C</label>
-                            <div class="control-row">
+                        <div class="probe-input-group">
+                            <label for="temperature">Water Temperature</label>
+                            <span class="probe-desc">Celsius temperature (0.0 – 45.0)</span>
+                            <div class="probe-control">
                                 <input type="range" id="temperature-slider" min="0" max="45" step="0.5" value="24.0">
                                 <input type="number" id="temperature" min="0" max="45" step="0.5" value="24.0" required>
                             </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="analyze-btn">Ask AI to Identify Impurity</button>
+                    <div style="text-align: center; margin-top: 2.5rem;">
+                        <button type="submit" class="btn-primary">Generate Custom Inference Report</button>
+                    </div>
                 </form>
-                </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Results Panel -->
-            <section class="panel results-panel" id="results-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="margin: 0;">AI Impurity Detection</h2>
-                    <button id="download-csv-btn" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Download Report CSV</button>
+        <!-- LOADING SPINNER (Minimal Apple Style) -->
+        <div id="report-loader" class="loader-container" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing telemetry signatures...</p>
+        </div>
+
+        <!-- DEEP-DIVE SCIENTIFIC REPORT (Apple-style Tech Specs Page) -->
+        <section id="scientific-report-section" class="report-section" style="display: none;">
+            <div class="report-header">
+                <div class="report-title-area">
+                    <span id="report-badge" class="badge">Classified Data</span>
+                    <h2 id="report-river-name" class="report-main-title">River Scientific Report</h2>
+                    <p id="report-timestamp" class="report-meta">Inference Timestamp: --</p>
                 </div>
+                <div class="report-action-area">
+                    <button id="download-csv-btn" class="btn-secondary">Export Log (CSV)</button>
+                </div>
+            </div>
+
+            <!-- Apple Tech Spec Sheet: 2 Column Layout -->
+            <div class="tech-spec-sheet">
                 
-                <div id="results-display" class="results-container empty">
-                    <p class="placeholder-text">Waiting for sensor data to deduce hidden pollutants...</p>
-                </div>
-
-                <!-- Predictive Maintenance Diagnostics -->
-                <div id="diagnostics-panel" style="margin-top: 1.5rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
-                    <h3 style="font-size: 1.1rem; color: var(--accent-blue); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">📡 Node Health Diagnostics</h3>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #10b981;">●</span> <span>Battery (LiFePO4):</span> <strong>82% (Discharging)</strong>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #10b981;">●</span> <span>Solar Array:</span> <strong>Idle (Night Mode)</strong>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px; color: #f59e0b;">
-                            <span>⚠️</span> <span>Lens Integrity:</span> <strong>Cleaning req. in 4 days</strong>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #3b82f6;">●</span> <span>Telemetry Link:</span> <strong>98ms (Good)</strong>
+                <!-- Section A: Core Metrics -->
+                <div class="tech-spec-row">
+                    <div class="tech-spec-label">
+                        <h3>Core Metrics</h3>
+                        <p class="spec-section-desc">Raw physical sensor metrics captured at point of monitoring.</p>
+                    </div>
+                    <div class="tech-spec-value">
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-val" id="metric-ph">--</span>
+                                <span class="metric-lbl">pH Level</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-val" id="metric-do">--</span>
+                                <span class="metric-lbl">Dissolved Oxygen (DO)</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-val" id="metric-turb">--</span>
+                                <span class="metric-lbl">Turbidity</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-val" id="metric-temp">--</span>
+                                <span class="metric-lbl">Temperature</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-        </main>
 
-        <!-- Global Context & Project Information -->
-        <section class="info-section">
-            <div class="info-card">
-                <h3>🌍 The Global Water Crisis</h3>
-                <p>According to the Environmental Performance Index (EPI), water quality remains a critical global challenge, particularly in nations where rapid industrialization outpaces sanitation infrastructure.</p>
-                <div style="margin-top: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05);">
-                    <canvas id="epiChart" height="200"></canvas>
-                </div>
-            </div>
-
-            <div class="info-card">
-                <h3>🔬 How AquaSense AI Works</h3>
-                <p>AquaSense AI bridges the gap between hardware engineering and artificial intelligence. Instead of relying on extremely expensive physical chemical analyzers (which often cost upwards of $10,000 and degrade quickly in harsh river conditions), this platform uses <strong>only 4 basic, low-cost physical probes</strong>:</p>
-                <ul class="tech-list">
-                    <li><span style="color:#3b82f6;">pH:</span> Measures Acidity & Alkalinity</li>
-                    <li><span style="color:#10b981;">Dissolved Oxygen (DO):</span> The lifeline of aquatic biology</li>
-                    <li><span style="color:#f59e0b;">Turbidity:</span> Measures water cloudiness and suspended solids</li>
-                    <li><span style="color:#ef4444;">Temperature:</span> Governs chemical reaction speeds</li>
-                </ul>
-                <p style="margin-top: 15px;">By feeding these simple hardware readings into a Machine Learning model, the AI reconstructs the "chemical fingerprint" of the river to <strong>deduce complex, hidden impurities</strong> (like heavy metals, raw sewage, and oil slicks) that usually require a laboratory to detect.</p>
-            </div>
-        </section>
-
-        <!-- Hardware & System Pipeline Information -->
-        <section class="info-section">
-            <div class="info-card" style="border-top: 3px solid var(--accent-blue);">
-                <h3>⚙️ The Physical Hardware Node</h3>
-                <p>To successfully capture real-time river data, the system relies on a low-power, waterproof hardware node designed for prolonged remote deployment. This is the physical "brain" of the operation that lives directly in the river.</p>
-                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <ul class="tech-list" style="margin-bottom: 0;">
-                        <li><strong>Microcontroller:</strong> ESP32 Processor (Chosen for ultra-low power consumption and built-in Wi-Fi/Bluetooth stacks).</li>
-                        <li><strong>Analog Interface:</strong> Probes are connected via raw analog pins (e.g., pH on Pin 34, Turbidity on Pin 35) taking raw voltage readings from the water stream.</li>
-                        <li><strong>Power Supply:</strong> Designed to run continuously on LiFePO4 batteries coupled with a 5W Solar Panel for off-the-grid survival.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="info-card" style="border-top: 3px solid var(--color-green);">
-                <h3>📡 Hardware-to-Cloud Telemetry</h3>
-                <p>Reading raw sensor voltage is only step one. The system must transport this data instantly securely out of the river and into the Machine Learning engine located in Google Cloud.</p>
-                <ol style="color: var(--text-secondary); line-height: 1.6; margin-left: 1.2rem;">
-                    <li><strong>Polling:</strong> The C++ code on the ESP32 wakes up every 10 seconds and averages 10 rapid readings to filter out electrical noise.</li>
-                    <li><strong>Calibration:</strong> The raw voltages (0-4095) are mathematically scaled on the device (e.g., converting voltage curve to NTU for turbidity).</li>
-                    <li><strong>JSON Payload:</strong> The Arduino C++ code binds the 4 finalized metrics into a secure JSON Payload wrapper.</li>
-                    <li><strong>POST Request:</strong> The node shoots the payload via HTTP POST directly to our deployed Google Cloud Run API endpoint where the AI scaler intercepts it!</li>
-                </ol>
-            </div>
-        </section>
-
-        <!-- Ecological Impact Section -->
-        <section class="info-section">
-            <div class="info-card" style="grid-column: 1 / -1; border-top: 3px solid #ef4444;">
-                <h3>☠️ 10-Year Ecological Impact in Major Urban Rivers</h3>
-                <p style="color: var(--text-secondary);">The correlation between untreated industrial/agricultural runoff and the severe decline of endemic marine species (e.g., the Ganges River Dolphin and native carp) is undeniable. Over the last decade, as heavy metal and solid wastewater pollutants exponentially rise, baseline survival indices plummet due to acute hypoxic stress.</p>
-                <div style="margin-top: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05); height: 350px;">
-                    <canvas id="marineChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Future Roadmap Section -->
-        <section class="info-section">
-            <div class="info-card" style="grid-column: 1 / -1; border-top: 3px solid #f59e0b;">
-                <h3>🚀 Project Roadmap: Sensor Upgrades</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
-                    <div>
-                        <h4 style="color: #10b981; margin-bottom: 10px; font-size: 1.1rem;">✅ Phase 1: Current Architecture</h4>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px;">Successfully proved the Machine Learning concept using the 4 fundamental, low-cost baseline probes:</p>
-                        <ul class="tech-list">
-                            <li>pH Level</li>
-                            <li>Dissolved Oxygen (DO)</li>
-                            <li>Turbidity</li>
-                            <li>Water Temperature</li>
-                        </ul>
+                <!-- Section B: Chemical Breakdown & Pollutants -->
+                <div class="tech-spec-row">
+                    <div class="tech-spec-label">
+                        <h3>Chemical Breakdown</h3>
+                        <p class="spec-section-desc">AI inferred classification of microscopic & macroscopic compounds.</p>
                     </div>
-                    <div>
-                        <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 1.1rem;">🚧 Phase 2: Future Hardware Integration</h4>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px;">To upgrade the AI inference to near-laboratory precision, the next iteration of the physical node will incorporate:</p>
-                        <ul class="tech-list">
-                            <li style="border-left-color: #f59e0b;"><span style="color:#cbd5e1;">Electrical Conductivity (EC):</span> Essential for absolute verification of clear industrial heavy metals.</li>
-                            <li style="border-left-color: #f59e0b;"><span style="color:#cbd5e1;">ORP Sensor:</span> Measures oxidation reduction to irrefutably confirm biological sewage events.</li>
-                            <li style="border-left-color: #f59e0b;"><span style="color:#cbd5e1;">Chlorophyll-a Sensor:</span> To perfectly distinguish between harmless mud and toxic agricultural algal blooms.</li>
-                        </ul>
+                    <div class="tech-spec-value">
+                        <div id="pollutants-list" class="pollutants-list-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
                     </div>
                 </div>
+
+                <!-- Section C: Remediation Strategy -->
+                <div class="tech-spec-row">
+                    <div class="tech-spec-label">
+                        <h3>Remediation Strategy</h3>
+                        <p class="spec-section-desc">Biological and physical protocol recommendations for mitigation.</p>
+                    </div>
+                    <div class="tech-spec-value">
+                        <div class="remediation-box">
+                            <h4 class="remediation-title">Actionable Mitigation Protocol</h4>
+                            <div id="remediation-content" class="remediation-content-text">
+                                --
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section D: Node Health Diagnostics -->
+                <div class="tech-spec-row">
+                    <div class="tech-spec-label">
+                        <h3>Telemetry Node Health</h3>
+                        <p class="spec-section-desc">Diagnostics transmission parameters from the remote buoy node.</p>
+                    </div>
+                    <div class="tech-spec-value">
+                        <div class="diagnostics-grid">
+                            <div class="diag-item">
+                                <span class="diag-name">Power Source</span>
+                                <span class="diag-val">LiFePO4 Array (82%)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-name">Solar Array</span>
+                                <span class="diag-val">Idle (Night Mode)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-name">Optical Sensor Lens</span>
+                                <span class="diag-val status-warn">⚠️ Clean Required (4 days)</span>
+                            </div>
+                            <div class="diag-item">
+                                <span class="diag-name">Telemetry Link</span>
+                                <span class="diag-val">98ms (Good)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
+    </main>
 
-    </div>
+    <footer class="app-footer">
+        <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>
+        <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
+    </footer>
 
-    <!-- Leaflet JS & Chart JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main Client Script -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
