@@ -96,40 +96,16 @@ network_lock = threading.Lock()
 
 VIRTUAL_RIVERS = [
     {
-        "id": "narmada", "name": "Narmada River (India)", "lat": 22.9734, "lng": 78.6569,
-        "base_ph": (7.2, 8.2), "base_do": (6.5, 8.5), "base_turb": (10, 30), "base_temp": (20, 24)
-    },
-    {
-        "id": "yamuna", "name": "Yamuna River (India)", "lat": 28.6139, "lng": 77.2090,
-        "base_ph": (5.5, 7.0), "base_do": (0.5, 2.5), "base_turb": (200, 300), "base_temp": (23, 27)
-    },
-    {
-        "id": "ganga", "name": "Ganga River (India)", "lat": 25.3176, "lng": 82.9739,
-        "base_ph": (6.5, 7.5), "base_do": (2.0, 4.0), "base_turb": (150, 250), "base_temp": (24, 28)
-    },
-    {
-        "id": "amazon", "name": "Amazon River (Brazil)", "lat": -3.4653, "lng": -62.2159,
-        "base_ph": (6.0, 6.8), "base_do": (5.0, 6.8), "base_turb": (80, 160), "base_temp": (26, 29)
-    },
-    {
-        "id": "nile", "name": "Nile River (Egypt)", "lat": 30.0444, "lng": 31.2357,
+        "id": "nile", "name": "Nile River, Egypt", "lat": 30.0444, "lng": 31.2357,
         "base_ph": (7.8, 8.4), "base_do": (5.5, 7.5), "base_turb": (15, 45), "base_temp": (22, 28)
     },
     {
-        "id": "mississippi", "name": "Mississippi River (USA)", "lat": 29.9511, "lng": -90.0715,
-        "base_ph": (7.5, 8.2), "base_do": (6.0, 8.5), "base_turb": (50, 120), "base_temp": (18, 25)
-    },
-    {
-        "id": "thames", "name": "River Thames (UK)", "lat": 51.5074, "lng": -0.1278,
-        "base_ph": (7.4, 8.1), "base_do": (7.0, 9.5), "base_turb": (10, 30), "base_temp": (10, 16)
-    },
-    {
-        "id": "rhine", "name": "Rhine River (Germany)", "lat": 50.9375, "lng": 6.9603,
+        "id": "rhine", "name": "Rhine River, Europe", "lat": 50.9375, "lng": 6.9603,
         "base_ph": (7.6, 8.2), "base_do": (8.0, 10.5), "base_turb": (5, 15), "base_temp": (11, 17)
     },
     {
-        "id": "yangtze", "name": "Yangtze River (China)", "lat": 31.2304, "lng": 121.4737,
-        "base_ph": (7.5, 8.3), "base_do": (6.0, 8.0), "base_turb": (60, 180), "base_temp": (16, 24)
+        "id": "thames", "name": "Thames River, UK", "lat": 51.5074, "lng": -0.1278,
+        "base_ph": (7.4, 8.1), "base_do": (7.0, 9.5), "base_turb": (10, 30), "base_temp": (10, 16)
     }
 ]
 

@@ -32,12 +32,9 @@ class VarunaAITestCase(unittest.TestCase):
         
         # Verify specific rivers exist
         river_names = [river['name'] for river in data]
-        self.assertIn('Narmada River (India)', river_names)
-        self.assertIn('Yamuna River (India)', river_names)
-        self.assertIn('Ganga River (India)', river_names)
-        self.assertIn('Amazon River (Brazil)', river_names)
-        self.assertIn('Nile River (Egypt)', river_names)
-        self.assertIn('Mississippi River (USA)', river_names)
+        self.assertIn('Nile River, Egypt', river_names)
+        self.assertIn('Rhine River, Europe', river_names)
+        self.assertIn('Thames River, UK', river_names)
 
     def test_predict_endpoint_valid(self):
         """Test /api/predict with standard parameters returns correct format."""

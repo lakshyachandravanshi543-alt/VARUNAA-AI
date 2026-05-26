@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Varuna AI — On-Demand Water Health Inference Engine</title>
-    <!-- Google Fonts: Inter for clean Apple typography -->
+    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -33,18 +35,20 @@
                     <div class="select-wrapper">
                         <select id="river-select" aria-label="Select River System">
                             <option value="" disabled selected>Choose a River System...</option>
-                            <option value="narmada">Narmada River (India)</option>
-                            <option value="yamuna">Yamuna River (India)</option>
-                            <option value="ganga">Ganga River (India)</option>
-                            <option value="amazon">Amazon River (Brazil)</option>
-                            <option value="nile">Nile River (Egypt)</option>
-                            <option value="mississippi">Mississippi River (USA)</option>
-                            <option value="thames">River Thames (UK)</option>
-                            <option value="rhine">Rhine River (Germany)</option>
-                            <option value="yangtze">Yangtze River (China)</option>
+                            <option value="nile">Nile River, Egypt</option>
+                            <option value="rhine">Rhine River, Europe</option>
+                            <option value="thames">Thames River, UK</option>
                         </select>
                     </div>
                     <button id="generate-report-btn" class="btn-primary">Generate Scientific Report</button>
+                </div>
+            </div>
+
+            <!-- Live Map Interactive Placement Card -->
+            <div class="map-card-container">
+                <h2 class="section-card-title">Live Interactive Telemetry Array</h2>
+                <div class="map-card-surface">
+                    <div id="map"></div>
                 </div>
             </div>
         </section>
@@ -98,13 +102,41 @@
             </div>
         </section>
 
-        <!-- LOADING SPINNER (Minimal Apple Style) -->
+        <!-- 2-COLUMN GRID SECTION: Water Crisis & How it works -->
+        <section class="info-grid">
+            <!-- Global Water Crisis Card -->
+            <div class="info-card-surface">
+                <h3>Global Water Crisis</h3>
+                <p class="info-card-desc">Average worldwide freshwater quality index trend over the last decade.</p>
+                <div class="chart-wrapper">
+                    <canvas id="crisis-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- How Varuna AI Works Card -->
+            <div class="info-card-surface typog-card">
+                <h3>How Varuna AI Works</h3>
+                <p class="tech-narrative">
+                    Varuna AI utilizes a robust <strong>Random Forest Machine Learning</strong> model to infer complex, hidden liquid and solid pollutants. By analyzing just 4 basic environmental parameters (pH, DO, Turbidity, and Temperature), it achieves a <strong>99.50% validation accuracy</strong>.
+                </p>
+                <p class="tech-narrative">
+                    This completely bypasses the need for high-cost chemical laboratory arrays, providing rapid, scalable telemetry audits at a fraction of the cost.
+                </p>
+                <div class="tech-specs-badge-row">
+                    <div class="tech-badge"><span>99.50%</span> Validation</div>
+                    <div class="tech-badge"><span>4 Probes</span> IoT Integration</div>
+                    <div class="tech-badge"><span>Zero Labs</span> On-Demand</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOADING SPINNER -->
         <div id="report-loader" class="loader-container" style="display: none;">
             <div class="spinner"></div>
             <p>Analyzing telemetry signatures...</p>
         </div>
 
-        <!-- DEEP-DIVE SCIENTIFIC REPORT (Apple-style Tech Specs Page) -->
+        <!-- DEEP-DIVE SCIENTIFIC REPORT -->
         <section id="scientific-report-section" class="report-section" style="display: none;">
             <div class="report-header">
                 <div class="report-title-area">
@@ -120,29 +152,37 @@
             <!-- Apple Tech Spec Sheet: 2 Column Layout -->
             <div class="tech-spec-sheet">
                 
-                <!-- Section A: Core Metrics -->
+                <!-- Section A: Core Metrics (Comparative Analysis) -->
                 <div class="tech-spec-row">
                     <div class="tech-spec-label">
                         <h3>Core Metrics</h3>
-                        <p class="spec-section-desc">Raw physical sensor metrics captured at point of monitoring.</p>
+                        <p class="spec-section-desc">Comparison of raw live sensor metrics against regulatory safe limits.</p>
                     </div>
                     <div class="tech-spec-value">
                         <div class="metrics-grid">
-                            <div class="metric-card">
+                            <!-- pH Card -->
+                            <div class="metric-card" id="metric-card-ph">
                                 <span class="metric-val" id="metric-ph">--</span>
                                 <span class="metric-lbl">pH Level</span>
+                                <span class="metric-range" id="range-ph">Range: 6.5 - 8.5</span>
                             </div>
-                            <div class="metric-card">
+                            <!-- DO Card -->
+                            <div class="metric-card" id="metric-card-do">
                                 <span class="metric-val" id="metric-do">--</span>
-                                <span class="metric-lbl">Dissolved Oxygen (DO)</span>
+                                <span class="metric-lbl">Dissolved Oxygen</span>
+                                <span class="metric-range" id="range-do">Range: 5.0 - 10.0 mg/L</span>
                             </div>
-                            <div class="metric-card">
+                            <!-- Turbidity Card -->
+                            <div class="metric-card" id="metric-card-turb">
                                 <span class="metric-val" id="metric-turb">--</span>
                                 <span class="metric-lbl">Turbidity</span>
+                                <span class="metric-range" id="range-turb">Range: 0 - 25 NTU</span>
                             </div>
-                            <div class="metric-card">
+                            <!-- Temp Card -->
+                            <div class="metric-card" id="metric-card-temp">
                                 <span class="metric-val" id="metric-temp">--</span>
                                 <span class="metric-lbl">Temperature</span>
+                                <span class="metric-range" id="range-temp">Range: 10.0 - 25.0 °C</span>
                             </div>
                         </div>
                     </div>
@@ -214,7 +254,9 @@
         <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
     </footer>
 
-    <!-- Main Client Script -->
+    <!-- Leaflet JS & Chart JS & Main JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

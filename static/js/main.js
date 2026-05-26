@@ -75,6 +75,159 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- LEAFLET MAP INTEGRATION (Clean Light Voyager Style) ---
+    const map = L.map('map').setView([35, 10], 2.5);
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+    let markers = {};
+    const riverCoords = {
+        nile: [30.0444, 31.2357],      // Egypt
+        rhine: [50.9375, 6.9603],      // Germany
+        thames: [51.5074, -0.1278]     // London
+    };
+
+    const getMarkerIcon = (color) => {
+        let hex = "#0071e3"; // azure default
+        if (color === 'green') hex = "#30d158";
+        if (color === 'orange') hex = "#ff9f0a";
+        if (color === 'red') hex = "#ff453a";
+        if (color === 'blue') hex = "#0a84ff";
+
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color:${hex}; width:16px; height:16px; border-radius:50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.15);"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+    };
+
+    // Initialize markers
+    Object.keys(riverCoords).forEach(id => {
+        markers[id] = L.marker(riverCoords[id], { icon: getMarkerIcon('blue') })
+            .addTo(map)
+            .on('click', () => {
+                riverSelect.value = id;
+                triggerReportGeneration(id);
+            });
+    });
+
+    async function updateMapMarkers() {
+        try {
+            const response = await fetch('/api/network_state');
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(river => {
+                    if (markers[river.id]) {
+                        markers[river.id].setIcon(getMarkerIcon(river.prediction.color));
+                        markers[river.id].bindTooltip(`<b>${river.name}</b><br>AI Verdict: ${river.prediction.pollutant}`, { direction: 'top' });
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Failed to update map markers", e);
+        }
+    }
+
+    // Update map markers instantly and start polling
+    updateMapMarkers();
+    setInterval(updateMapMarkers, 5000);
+
+    // --- CHART.JS WATER CRISIS PLOT ---
+    const ctx = document.getElementById('crisis-chart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                datasets: [{
+                    label: 'Global Water Quality Index (WQI)',
+                    data: [82.5, 80.1, 78.4, 76.9, 74.2, 73.0, 70.5, 68.1, 65.4, 61.2, 57.8],
+                    borderColor: '#1d1d1f',         // Ink
+                    backgroundColor: 'rgba(29, 29, 31, 0.03)',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#86868b', // Graphite
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 4.5,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 40,
+                        max: 100,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: { color: '#86868b', font: { family: 'Inter', size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#86868b', font: { family: 'Inter', size: 10 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // --- COMPARATIVE METRICS VALIDATION ---
+    const checkMetricsThresholds = (rawSensors) => {
+        // Threshold configs
+        const thresholds = {
+            ph: { min: 6.5, max: 8.5 },
+            do: { min: 5.0, max: 12.0 },
+            turb: { min: 0.0, max: 25.0 },
+            temp: { min: 10.0, max: 25.0 }
+        };
+
+        const phVal = parseFloat(rawSensors.ph);
+        const doVal = parseFloat(rawSensors.do);
+        const turbVal = parseFloat(rawSensors.turbidity);
+        const tempVal = parseFloat(rawSensors.temperature);
+
+        // pH Validation
+        const cardPh = document.getElementById('metric-card-ph');
+        if (phVal < thresholds.ph.min || phVal > thresholds.ph.max) {
+            cardPh.classList.add('out-of-range');
+        } else {
+            cardPh.classList.remove('out-of-range');
+        }
+
+        // DO Validation
+        const cardDo = document.getElementById('metric-card-do');
+        if (doVal < thresholds.do.min || doVal > thresholds.do.max) {
+            cardDo.classList.add('out-of-range');
+        } else {
+            cardDo.classList.remove('out-of-range');
+        }
+
+        // Turbidity Validation
+        const cardTurb = document.getElementById('metric-card-turb');
+        if (turbVal < thresholds.turb.min || turbVal > thresholds.turb.max) {
+            cardTurb.classList.add('out-of-range');
+        } else {
+            cardTurb.classList.remove('out-of-range');
+        }
+
+        // Temperature Validation
+        const cardTemp = document.getElementById('metric-card-temp');
+        if (tempVal < thresholds.temp.min || tempVal > thresholds.temp.max) {
+            cardTemp.classList.add('out-of-range');
+        } else {
+            cardTemp.classList.remove('out-of-range');
+        }
+    };
+
     // --- SCIENTIFIC DATA RENDER ---
     const displayReport = (title, rawSensors, prediction, weatherAlert) => {
         // Hide loader
@@ -105,11 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
             reportBadge.innerText += ` | ${weatherAlert}`;
         }
 
-        // Section A: Raw parameters
+        // Section A: Raw parameters (Comparative Analysis)
         metricPh.innerText = parseFloat(rawSensors.ph).toFixed(2);
         metricDo.innerText = `${parseFloat(rawSensors.do).toFixed(1)} mg/L`;
         metricTurb.innerText = `${Math.round(rawSensors.turbidity)} NTU`;
         metricTemp.innerText = `${parseFloat(rawSensors.temperature).toFixed(1)}°C`;
+        
+        // Apply out-of-range alerts and styling classes
+        checkMetricsThresholds(rawSensors);
         
         // Section B: Detected Pollutants
         pollutantsList.innerHTML = '';
@@ -154,14 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // --- DIRECTORY INFERENCE QUERY ---
-    generateReportBtn.addEventListener('click', async () => {
-        const selectedId = riverSelect.value;
-        if (!selectedId) {
-            alert('Please select a river system from the directory first.');
-            return;
-        }
-
+    // --- DIRECTORY INFERENCE QUERY TRIGGER ---
+    const triggerReportGeneration = async (selectedId) => {
         // Show Loader
         reportSection.style.display = 'none';
         reportLoader.style.display = 'flex';
@@ -175,7 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedRiver = data.find(r => r.id === selectedId);
             
             if (selectedRiver) {
-                // Short timeout for realistic Apple-style dashboard inference load transition
+                // Focus map on the selected river coordinates
+                map.flyTo(riverCoords[selectedId], 5, { duration: 1.5 });
+                
                 setTimeout(() => {
                     displayReport(
                         selectedRiver.name,
@@ -191,6 +343,15 @@ document.addEventListener('DOMContentLoaded', () => {
             reportLoader.style.display = 'none';
             alert(`Error querying inference array: ${error.message}`);
         }
+    };
+
+    generateReportBtn.addEventListener('click', () => {
+        const selectedId = riverSelect.value;
+        if (!selectedId) {
+            alert('Please select a river system from the directory first.');
+            return;
+        }
+        triggerReportGeneration(selectedId);
     });
 
     // --- CUSTOM PROBE FORM SUBMIT ---
