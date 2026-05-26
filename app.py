@@ -257,13 +257,107 @@ init_network_state()
 sim_thread = threading.Thread(target=simulate_network, daemon=True)
 sim_thread.start()
 
+REMEDIATION_STRATEGIES = {
+    "Clean Water / Baseline Condition": {
+        "local_1_title": "Riparian Planting",
+        "local_1_desc": "Establish vetiver buffer strips to filter agricultural runoffs.",
+        "local_2_title": "Routine Telemetry Surveillance",
+        "local_2_desc": "Maintain solar buoy communication to catch early deviations.",
+        "global_1_title": "Satellite Imagery Integration",
+        "global_1_desc": "Utilize Copernicus/Landsat multi-spectral data to track upstream algae.",
+        "global_2_title": "Continuous Flow-Through Bioassays",
+        "global_2_desc": "Deploy online fish-monitor arrays to detect sub-lethal toxicity."
+    },
+    "Industrial Heavy Metal Bioaccumulation": {
+        "local_1_title": "Phytoremediation Rhizofiltration",
+        "local_1_desc": "Deploy Vetiver Grass (Chrysopogon zizanioides) and Water Hyacinth to absorb toxic metal ions.",
+        "local_2_title": "Bio-Char Permeable Barriers",
+        "local_2_desc": "Apply granular activated bio-char filters at narrow channels to physically trap metal ions.",
+        "global_1_title": "Electrocoagulation (EC)",
+        "global_1_desc": "Pass electrical current through sacrificial iron/aluminum anodes to precipitate toxic cations.",
+        "global_2_title": "Autonomous Nanomaterial Sorbents",
+        "global_2_desc": "Deploy solar-powered mechanical filter drones equipped with magnetic iron oxide nanoparticles to capture toxic cations."
+    },
+    "Untreated Organic Sewage & Pathogens": {
+        "local_1_title": "Forced Solar Aeration",
+        "local_1_desc": "Install floating solar mechanical aerators to break the interface and restore DO levels.",
+        "local_2_title": "Nitrifying Bacterial Inoculants",
+        "local_2_desc": "Disperse Nitrosomonas/Nitrobacter cultures to rapidly digest nitrogenous waste.",
+        "global_1_title": "Ozonation Disinfection Arrays",
+        "global_1_desc": "Inject high-density ozone gas to oxidize organic compounds and destroy bacterial pathogens.",
+        "global_2_title": "Advanced Submerged Membrane Bioreactors",
+        "global_2_desc": "Install automated multi-stage membrane filtration grids to separate ultra-fine suspended biological loads."
+    },
+    "Petrochemical Hydrocarbon Slick": {
+        "local_1_title": "Hydrophobic Straw Booming",
+        "local_1_desc": "Deploy floating barriers packed with organic agricultural waste to capture light slick films.",
+        "local_2_title": "Mechanical Skimming",
+        "local_2_desc": "Use low-draw floating drum skimmers to physically separate surface oil layers.",
+        "global_1_title": "Biostimulation & Hydrocarbonoclastic Inoculation",
+        "global_1_desc": "Disperse Alcanivorax borkumensis cultures with slow-release nutrients to accelerate oil degradation.",
+        "global_2_title": "Photocatalytic Floating Membranes",
+        "global_2_desc": "Install TiO2-coated polymer membranes that leverage solar UV to chemically break down complex hydrocarbons."
+    },
+    "Agricultural Eutrophication Runoff": {
+        "local_1_title": "Riparian Vetiver Buffers",
+        "local_1_desc": "Plant deep-rooting grasses along agricultural boundaries to absorb dissolved nitrogen and phosphorus.",
+        "local_2_title": "Mechanical Biomass Harvesting",
+        "local_2_desc": "Physically extract floating algal mats to prevent mass bacterial decay and subsequent anoxia.",
+        "global_1_title": "Ultrasonic Algal Cell Lysis",
+        "global_1_desc": "Deploy pontoon-mounted transducers emitting precise frequencies to collapse cyanobacteria gas vesicles without killing fish.",
+        "global_2_title": "Phoslock Clay Application",
+        "global_2_desc": "Apply lanthanum-modified bentonite clay to bind dissolved phosphate ions, locking them permanently into sediment."
+    },
+    "Municipal Plastic & Suspended Solids": {
+        "local_1_title": "Floating Debris Barricades",
+        "local_1_desc": "Construct local bamboo or nylon mesh trash booms across natural bends to catch macroplastics.",
+        "local_2_title": "Sedimentation Settling Basins",
+        "local_2_desc": "Create upstream shallow ponds to naturally drop heavy clays and suspended silts out of the water column.",
+        "global_1_title": "Autonomous Conveyor Interceptors",
+        "global_1_desc": "Deploy solar-powered self-navigating catamaran vessels equipped with conveyor belts for mass waste harvesting.",
+        "global_2_title": "Acoustic Particle Aggregation",
+        "global_2_desc": "Install ultrasonic standing wave chambers to aggregate microplastic particles for centralized filtration."
+    },
+    "Natural Mud Runoff (Rain Induced)": {
+        "local_1_title": "Temporary Sediment Fences",
+        "local_1_desc": "Install silt fencing constructed of geotextile filter fabric along run-off channels.",
+        "local_2_title": "Settling Basins",
+        "local_2_desc": "Construct simple catchment basins upstream to slow velocity and settle out soils.",
+        "global_1_title": "Flocculation Dosing Stations",
+        "global_1_desc": "Deploy automated dosing of polyacrylamide (PAM) at upstream choke points to aggregate clay particles.",
+        "global_2_title": "Centrifugal Desanding Cyclones",
+        "global_2_desc": "Install hydrocyclone separator units to continuously filter physical suspended sediments."
+    }
+}
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/remediation')
 def remediation():
-    return render_template('remediation.html')
+    # Read the latest inference
+    with lock:
+        latest = latest_inference
+        
+    pollutant = "Industrial Heavy Metal Bioaccumulation"  # default fallback
+    if latest and latest.get('prediction') and latest['prediction'].get('pollutant') != 'Awaiting Telemetry...':
+        pred = latest['prediction']
+        pollutant = pred.get('pollutant', pollutant)
+        
+    # Get strategies matching this pollutant
+    strategies = REMEDIATION_STRATEGIES.get(pollutant, REMEDIATION_STRATEGIES["Industrial Heavy Metal Bioaccumulation"])
+    
+    return render_template('remediation.html',
+                           detected_pollutant=pollutant,
+                           local_strategy_1_title=strategies["local_1_title"],
+                           local_strategy_1_desc=strategies["local_1_desc"],
+                           local_strategy_2_title=strategies["local_2_title"],
+                           local_strategy_2_desc=strategies["local_2_desc"],
+                           global_strategy_1_title=strategies["global_1_title"],
+                           global_strategy_1_desc=strategies["global_1_desc"],
+                           global_strategy_2_title=strategies["global_2_title"],
+                           global_strategy_2_desc=strategies["global_2_desc"])
 
 @app.route('/api/network_state', methods=['GET'])
 def get_network_state():
