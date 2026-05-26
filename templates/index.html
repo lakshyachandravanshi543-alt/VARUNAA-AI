@@ -12,337 +12,269 @@
 </head>
 <body>
 
-    <!-- Sleek Navigation Header -->
+    <!-- Sticky Navigation Bar -->
     <header class="navbar">
         <div class="navbar-content">
             <span class="nav-logo">Varuna <span class="nav-logo-sub">AI</span></span>
-            <nav class="nav-tabs" role="tablist">
-                <button class="tab-btn active" id="tab-directory" role="tab" aria-selected="true" aria-controls="directory-panel">River Directory</button>
-                <button class="tab-btn" id="tab-custom" role="tab" aria-selected="false" aria-controls="custom-panel">Custom Probe Input</button>
+            <nav class="nav-links">
+                <a href="#directory-section" class="nav-link">Directory</a>
+                <a href="#education-section" class="nav-link">Technology</a>
+                <a href="#scientific-inference-section" class="nav-link">Inference</a>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <!-- HERO SECTION / DIRECTORY PANEL -->
-        <section id="directory-panel" class="tab-panel active" role="tabpanel">
-            <div class="hero-block">
-                <p class="hero-eyebrow">On-Demand Water Inference Engine</p>
-                <h1 class="hero-title">The health of our waters, in absolute detail.</h1>
-                <p class="hero-subtitle">Select a water system below to initiate a real-time chemical inference report. Powered by a high-validation Random Forest model analyzing key environmental markers.</p>
+        
+        <!-- HERO SECTION (Global Directory & Live Map) -->
+        <section id="directory-section" class="hero-split-grid">
+            <!-- Left Column: Headline and Dropdown Selection -->
+            <div class="hero-text-col">
+                <p class="hero-eyebrow">Enterprise Inference Engine</p>
+                <h1 class="hero-large-title">Global river intelligence. On demand.</h1>
+                <p class="hero-desc">Select a monitored river network from the River Directory to generate a real-time chemical profile and diagnostic validation report.</p>
                 
-                <div class="directory-selector-box">
-                    <div class="select-wrapper">
-                        <select id="river-select" aria-label="Select River System">
-                            <option value="" disabled selected>Choose a River System...</option>
+                <div class="selector-container-pill">
+                    <div class="custom-select-wrapper">
+                        <select id="river-select" aria-label="River Directory">
+                            <option value="ganga" selected>Ganga River, India</option>
+                            <option value="yamuna">Yamuna River, India</option>
                             <option value="nile">Nile River, Egypt</option>
                             <option value="rhine">Rhine River, Europe</option>
                             <option value="thames">Thames River, UK</option>
                         </select>
                     </div>
-                    <button id="generate-report-btn" class="btn-primary">Generate Scientific Report</button>
+                    <button id="generate-report-btn" class="btn-primary-azure">Generate Scientific Report</button>
                 </div>
             </div>
 
-            <!-- Live Map Interactive Placement Card -->
-            <div class="map-card-container">
-                <h2 class="section-card-title">Live Interactive Telemetry Array</h2>
-                <div class="map-card-surface">
+            <!-- Right Column: Live Map Card Surface -->
+            <div class="hero-map-col">
+                <div class="map-card-wrapper card-snow-surface">
+                    <div class="map-header-bar">
+                        <span class="map-status-dot"></span>
+                        <span class="map-status-text">Active Telemetry Array: India, Egypt, Europe, UK</span>
+                    </div>
                     <div id="map"></div>
                 </div>
             </div>
         </section>
 
-        <!-- CUSTOM PROBE INPUT PANEL -->
-        <section id="custom-panel" class="tab-panel" role="tabpanel" style="display: none;">
-            <div class="hero-block">
-                <p class="hero-eyebrow">Manual Hardware Diagnostics</p>
-                <h1 class="hero-title">Direct Parameter Simulation</h1>
-                <p class="hero-subtitle">Input custom sensor voltage metrics manually to query the inference engine and generate synthetic report projections.</p>
-                
-                <form id="custom-probe-form" class="custom-probe-card">
-                    <div class="probe-grid">
-                        <div class="probe-input-group">
-                            <label for="ph">pH Level</label>
-                            <span class="probe-desc">Acidity & Alkalinity (0.0 – 14.0)</span>
-                            <div class="probe-control">
-                                <input type="range" id="ph-slider" min="0" max="14" step="0.1" value="7.2">
-                                <input type="number" id="ph" min="0" max="14" step="0.1" value="7.2" required>
-                            </div>
-                        </div>
-                        <div class="probe-input-group">
-                            <label for="do">Dissolved Oxygen (DO)</label>
-                            <span class="probe-desc">mg/L concentration (0.0 – 12.0)</span>
-                            <div class="probe-control">
-                                <input type="range" id="do-slider" min="0" max="12" step="0.1" value="6.5">
-                                <input type="number" id="do" min="0" max="12" step="0.1" value="6.5" required>
-                            </div>
-                        </div>
-                        <div class="probe-input-group">
-                            <label for="turbidity">Turbidity</label>
-                            <span class="probe-desc">NTU cloudiness level (0 – 400)</span>
-                            <div class="probe-control">
-                                <input type="range" id="turbidity-slider" min="0" max="400" step="1" value="5">
-                                <input type="number" id="turbidity" min="0" max="400" step="1" value="5" required>
-                            </div>
-                        </div>
-                        <div class="probe-input-group">
-                            <label for="temperature">Water Temperature</label>
-                            <span class="probe-desc">Celsius temperature (0.0 – 45.0)</span>
-                            <div class="probe-control">
-                                <input type="range" id="temperature-slider" min="0" max="45" step="0.5" value="24.0">
-                                <input type="number" id="temperature" min="0" max="45" step="0.5" value="24.0" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 2.5rem;">
-                        <button type="submit" class="btn-primary">Generate Custom Inference Report</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- 2-COLUMN GRID SECTION: Water Crisis & How it works -->
-        <section class="info-grid">
-            <!-- Global Water Crisis Card -->
-            <div class="info-card-surface">
-                <h3>Global Water Crisis</h3>
-                <p class="info-card-desc">Average worldwide freshwater quality index trend over the last decade.</p>
-                <div class="chart-wrapper">
+        <!-- EDUCATION SECTION (Water Crisis & How It Works) -->
+        <section id="education-section" class="education-grid">
+            <!-- Card 1: Global Water Crisis WQI Index Chart -->
+            <div class="edu-card card-snow-surface">
+                <span class="card-eyebrow-small">Environmental Baseline</span>
+                <h2 class="edu-card-title">Global Water Crisis</h2>
+                <p class="edu-card-subtitle">Aggregated decline index of clean freshwater ecosystems over the past decade.</p>
+                <div class="edu-chart-container">
                     <canvas id="crisis-chart"></canvas>
                 </div>
             </div>
 
-            <!-- How Varuna AI Works Card -->
-            <div class="info-card-surface typog-card">
-                <h3>How Varuna AI Works</h3>
-                <p class="tech-narrative">
-                    Varuna AI utilizes a robust <strong>Random Forest Machine Learning</strong> model to infer complex, hidden liquid and solid pollutants. By analyzing just 4 basic environmental parameters (pH, DO, Turbidity, and Temperature), it achieves a <strong>99.50% validation accuracy</strong>.
-                </p>
-                <p class="tech-narrative">
-                    This completely bypasses the need for high-cost chemical laboratory arrays, providing rapid, scalable telemetry audits at a fraction of the cost.
-                </p>
-                <div class="tech-specs-badge-row">
-                    <div class="tech-badge"><span>99.50%</span> Validation</div>
-                    <div class="tech-badge"><span>4 Probes</span> IoT Integration</div>
-                    <div class="tech-badge"><span>Zero Labs</span> On-Demand</div>
+            <!-- Card 2: How Varuna AI Works -->
+            <div class="edu-card card-snow-surface justify-between-col">
+                <div>
+                    <span class="card-eyebrow-small">Algorithm Architecture</span>
+                    <h2 class="edu-card-title">How Varuna AI Works</h2>
+                    <p class="tech-narrative-text">
+                        Varuna AI bridges the gap between low-cost IoT telemetry and high-grade diagnostics. The engine uses a paired <strong>Isolation Forest</strong> (for anomaly rejection) and <strong>Random Forest Machine Learning</strong> model to reconstruct chemical pollution fingerprints.
+                    </p>
+                    <p class="tech-narrative-text">
+                        By mapping non-linear correlations across just <strong>6 basic scalar inputs</strong> (pH, DO, Turbidity, Temp, EC, and ORP), the engine achieves <strong>99.50% model validation accuracy</strong> without expensive, fragile physical chemical laboratory reagents.
+                    </p>
+                </div>
+                <div class="tech-spec-labels-row">
+                    <div class="spec-label-badge"><span>99.50%</span> Validation</div>
+                    <div class="spec-label-badge"><span>6 Sensors</span> Telemetry</div>
+                    <div class="spec-label-badge"><span>No Lab Reagents</span> On-Demand</div>
                 </div>
             </div>
         </section>
 
-        <!-- LOADING SPINNER -->
-        <div id="report-loader" class="loader-container" style="display: none;">
-            <div class="spinner"></div>
-            <p>Analyzing telemetry signatures...</p>
+        <!-- LOADING TRANSITION SPINNER -->
+        <div id="report-loader" class="apple-loader-box" style="display: none;">
+            <div class="apple-spinner"></div>
+            <p>Querying telemetry nodes and performing model inference...</p>
         </div>
 
-        <!-- DEEP-DIVE SCIENTIFIC REPORT -->
-        <section id="scientific-report-section" class="report-section" style="display: none;">
-            <div class="report-header">
-                <div class="report-title-area">
-                    <span id="report-badge" class="badge">Classified Data</span>
-                    <h2 id="report-river-name" class="report-main-title">River Scientific Report</h2>
-                    <p id="report-timestamp" class="report-meta">Inference Timestamp: --</p>
+        <!-- SCIENTIFIC REPORT DASHBOARD -->
+        <section id="scientific-inference-section" class="scientific-dashboard-surface" style="display: none;">
+            <div class="dashboard-header">
+                <div class="dashboard-title-area">
+                    <span id="report-badge" class="badge">Inference Active</span>
+                    <h2 id="report-river-name" class="dashboard-heading-title">Live Scientific Inference</h2>
+                    <p id="report-timestamp" class="dashboard-meta-text">Inference Timestamp: --</p>
                 </div>
-                <div class="report-action-area">
-                    <button id="download-csv-btn" class="btn-secondary">Export Log (CSV)</button>
+                <div class="dashboard-actions">
+                    <button id="download-csv-btn" class="btn-secondary-apple">Export Compliance Logs (CSV)</button>
                 </div>
             </div>
 
-            <!-- Apple Tech Spec Sheet: 2 Column Layout -->
-            <div class="tech-spec-sheet">
+            <!-- Dashboard Sub-Heading for Spec Sheet -->
+            <div class="spec-heading-divider">
+                <h3>Technical Parameters Spec Sheet</h3>
+            </div>
+
+            <!-- FEATURE A: 6-Dimensional Metrics Grid (3x2 Layout) -->
+            <div class="metrics-spec-grid">
                 
-                <!-- Section A: Core Metrics (Comparative Analysis) -->
-                <div class="tech-spec-row">
-                    <div class="tech-spec-label">
-                        <h3>Core Metrics</h3>
-                        <p class="spec-section-desc">Comparison of raw live sensor metrics against regulatory safe limits.</p>
+                <!-- pH Card -->
+                <div class="metric-apple-card" id="metric-card-ph">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">pH Level</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 6.5 - 8.5</span>
                     </div>
-                    <div class="tech-spec-value">
-                        <div class="metrics-grid">
-                            <!-- pH Card -->
-                            <div class="metric-card" id="metric-card-ph">
-                                <span class="metric-val" id="metric-ph">--</span>
-                                <span class="metric-lbl">pH Level</span>
-                                <span class="metric-range" id="range-ph">Range: 6.5 - 8.5</span>
-                            </div>
-                            <!-- DO Card -->
-                            <div class="metric-card" id="metric-card-do">
-                                <span class="metric-val" id="metric-do">--</span>
-                                <span class="metric-lbl">Dissolved Oxygen</span>
-                                <span class="metric-range" id="range-do">Range: 5.0 - 10.0 mg/L</span>
-                            </div>
-                            <!-- Turbidity Card -->
-                            <div class="metric-card" id="metric-card-turb">
-                                <span class="metric-val" id="metric-turb">--</span>
-                                <span class="metric-lbl">Turbidity</span>
-                                <span class="metric-range" id="range-turb">Range: 0 - 25 NTU</span>
-                            </div>
-                            <!-- Temp Card -->
-                            <div class="metric-card" id="metric-card-temp">
-                                <span class="metric-val" id="metric-temp">--</span>
-                                <span class="metric-lbl">Temperature</span>
-                                <span class="metric-range" id="range-temp">Range: 10.0 - 25.0 °C</span>
-                            </div>
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-ph">--</span>
+                            <span class="metric-unit">pH</span>
                         </div>
                     </div>
+                    <p class="metric-status-msg" id="status-ph">Normal Baseline Range</p>
                 </div>
 
-                <!-- Section B: Chemical Breakdown & Pollutants -->
-                <div class="tech-spec-row">
-                    <div class="tech-spec-label">
-                        <h3>Chemical Breakdown</h3>
-                        <p class="spec-section-desc">AI inferred classification of microscopic & macroscopic compounds.</p>
+                <!-- Dissolved Oxygen (DO) Card -->
+                <div class="metric-apple-card" id="metric-card-do">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">Dissolved Oxygen (DO)</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 5.0 - 12.0</span>
                     </div>
-                    <div class="tech-spec-value">
-                        <div id="pollutants-list" class="pollutants-list-container">
-                            <!-- Populated dynamically via JS -->
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-do">--</span>
+                            <span class="metric-unit">mg/L</span>
                         </div>
                     </div>
+                    <p class="metric-status-msg" id="status-do">Normal Baseline Range</p>
                 </div>
 
-                <!-- Section C: Remediation Strategy -->
-                <div class="tech-spec-row">
-                    <div class="tech-spec-label">
-                        <h3>Remediation Strategy</h3>
-                        <p class="spec-section-desc">Biological and physical protocol recommendations for mitigation.</p>
+                <!-- Turbidity Card -->
+                <div class="metric-apple-card" id="metric-card-turb">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">Turbidity</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 0.0 - 25.0</span>
                     </div>
-                    <div class="tech-spec-value">
-                        <div class="remediation-box">
-                            <h4 class="remediation-title">Actionable Mitigation Protocol</h4>
-                            <div id="remediation-content" class="remediation-content-text">
-                                --
-                            </div>
-                            <button id="view-cleaning-strategy-btn" class="btn-primary" style="margin-top: 1.5rem;">View Cleaning Strategy</button>
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-turb">--</span>
+                            <span class="metric-unit">NTU</span>
                         </div>
                     </div>
+                    <p class="metric-status-msg" id="status-turb">Normal Baseline Range</p>
                 </div>
 
-                <!-- Section D: Node Health Diagnostics -->
-                <div class="tech-spec-row">
-                    <div class="tech-spec-label">
-                        <h3>Telemetry Node Health</h3>
-                        <p class="spec-section-desc">Diagnostics transmission parameters from the remote buoy node.</p>
+                <!-- Temperature Card -->
+                <div class="metric-apple-card" id="metric-card-temp">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">Temperature</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 10.0 - 25.0</span>
                     </div>
-                    <div class="tech-spec-value">
-                        <div class="diagnostics-grid">
-                            <div class="diag-item">
-                                <span class="diag-name">Power Source</span>
-                                <span class="diag-val">LiFePO4 Array (82%)</span>
-                            </div>
-                            <div class="diag-item">
-                                <span class="diag-name">Solar Array</span>
-                                <span class="diag-val">Idle (Night Mode)</span>
-                            </div>
-                            <div class="diag-item">
-                                <span class="diag-name">Optical Sensor Lens</span>
-                                <span class="diag-val status-warn">⚠️ Clean Required (4 days)</span>
-                            </div>
-                            <div class="diag-item">
-                                <span class="diag-name">Telemetry Link</span>
-                                <span class="diag-val">98ms (Good)</span>
-                            </div>
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-temp">--</span>
+                            <span class="metric-unit">°C</span>
                         </div>
                     </div>
+                    <p class="metric-status-msg" id="status-temp">Normal Baseline Range</p>
+                </div>
+
+                <!-- Electrical Conductivity (EC) Card -->
+                <div class="metric-apple-card" id="metric-card-ec">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">Electrical Conductivity (EC)</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 100 - 1000</span>
+                    </div>
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-ec">--</span>
+                            <span class="metric-unit">µS/cm</span>
+                        </div>
+                    </div>
+                    <p class="metric-status-msg" id="status-ec">Normal Baseline Range</p>
+                </div>
+
+                <!-- Oxidation-Reduction Potential (ORP) Card -->
+                <div class="metric-apple-card" id="metric-card-orp">
+                    <div class="metric-top-row">
+                        <span class="metric-label-txt">ORP (Oxidation-Reduction Potential)</span>
+                        <span class="metric-safe-range-lbl">Normal Safe Range: 200 - 600</span>
+                    </div>
+                    <div class="metric-val-wrap">
+                        <span class="metric-live-label">Current Live Value</span>
+                        <div class="metric-num-container">
+                            <span class="metric-val-num" id="metric-orp">--</span>
+                            <span class="metric-unit">mV</span>
+                        </div>
+                    </div>
+                    <p class="metric-status-msg" id="status-orp">Normal Baseline Range</p>
                 </div>
 
             </div>
+
+            <!-- FEATURE B: AI Confidence Matrix & XAI SHAP Breakdown (2-Column Grid) -->
+            <div class="xai-columns-grid">
+                
+                <!-- Left Card: AI Confidence Matrix -->
+                <div class="xai-detail-card card-snow-surface">
+                    <span class="card-eyebrow-small">Classification Matrix</span>
+                    <h3 class="xai-card-title" id="xai-predicted-class">Prediction: Inferred</h3>
+                    <p class="xai-card-desc">Machine Learning model probability weight for current water sample classification.</p>
+                    
+                    <div class="confidence-bar-wrapper">
+                        <div class="confidence-text-row">
+                            <span id="confidence-percentage-val">--% AI Confidence Probability</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill-azure" id="confidence-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Card: Explainable AI / SHAP Breakdown -->
+                <div class="xai-detail-card card-snow-surface">
+                    <span class="card-eyebrow-small">Feature Contribution</span>
+                    <h3 class="xai-card-title">Explainable AI (SHAP) Breakdown</h3>
+                    <p class="xai-card-desc">Features contributing to the classifier decision, ranked by model variance weights.</p>
+                    
+                    <ul class="shap-list" id="shap-list-container">
+                        <!-- Populated dynamically via JS -->
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Remediation Strategy row in tech-spec-sheet -->
+            <div class="remediation-spec-section">
+                <div class="remediation-text-content">
+                    <span class="card-eyebrow-small">Environmental Cleanup</span>
+                    <h3>Actionable Mitigation Protocol</h3>
+                    <div id="remediation-content" class="remediation-strategy-block">
+                        --
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action Button -->
+            <div class="dashboard-footer-action">
+                <a href="/remediation" class="button">View Remediation & Cleaning Strategy →</a>
+            </div>
+
         </section>
     </main>
 
-    <!-- REMEDIATION ACTION PLAN SCREEN (Apple MacBook Neo Style) -->
-    <div id="remediation-plan-view" class="remediation-plan-screen" style="display: none;">
-        <div class="remediation-plan-container">
-            <!-- Header Section -->
-            <header class="remediation-header">
-                <button id="back-to-report-btn" class="btn-ghost">← Back to Scientific Report</button>
-                <div class="remediation-title-wrap">
-                    <h1 class="remediation-title">Remediation Action Plan.</h1>
-                    <p class="remediation-subtitle">AI-curated mitigation strategies based on detected pollutants.</p>
-                </div>
-            </header>
-            
-            <!-- Strategy Grid (2-Column Layout) -->
-            <div class="strategy-grid-remediation">
-                <!-- Left Card: Cost-Effective & Rapid Deployment -->
-                <div class="strategy-card card-snow">
-                    <span class="card-eyebrow">Immediate Deployment</span>
-                    <h2 class="card-headline">Cost-Effective & Rapid</h2>
-                    <p class="card-purpose">High-impact, budget-friendly local intervention methods.</p>
-                    
-                    <div class="strategy-items">
-                        <div class="strategy-item">
-                            <div class="item-icon">🦠</div>
-                            <div class="item-text">
-                                <span class="item-title">Bioremediation:</span>
-                                <span class="item-desc">Introduction of specific microbial cultures to eat organic waste.</span>
-                            </div>
-                        </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">🌱</div>
-                            <div class="item-text">
-                                <span class="item-title">Constructed Wetlands:</span>
-                                <span class="item-desc">Floating plant beds to naturally filter heavy metals.</span>
-                            </div>
-                        </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">💨</div>
-                            <div class="item-text">
-                                <span class="item-title">Targeted Aeration:</span>
-                                <span class="item-desc">Low-cost mechanical aerators to immediately boost DO levels.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Card: Advanced Global Technologies -->
-                <div class="strategy-card card-snow">
-                    <div class="card-header-row">
-                        <span class="card-eyebrow">Advanced Engineering</span>
-                        <span class="premium-badge-text">Premium Solution</span>
-                    </div>
-                    <h2 class="card-headline">Advanced Global Technologies</h2>
-                    <p class="card-purpose">Cutting-edge technologies deployed in leading international waters.</p>
-                    
-                    <div class="strategy-items">
-                        <div class="strategy-item">
-                            <div class="item-icon">🧼</div>
-                            <div class="item-text">
-                                <span class="item-title">Nanobubble Generators (Japan/EU):</span>
-                                <span class="item-desc">Infuses microscopic oxygen bubbles that remain suspended for months, breaking down deep-layer toxins without chemicals.</span>
-                            </div>
-                        </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">🚢</div>
-                            <div class="item-text">
-                                <span class="item-title">Autonomous Interceptor Vessels (Netherlands):</span>
-                                <span class="item-desc">Solar-powered, AI-guided conveyor systems for mass solid-waste extraction.</span>
-                            </div>
-                        </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">🔊</div>
-                            <div class="item-text">
-                                <span class="item-title">Ultrasonic Algae Control:</span>
-                                <span class="item-desc">Emits specific sound frequencies to safely destroy harmful algal blooms without harming fish.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Action -->
-            <div class="remediation-footer">
-                <button id="download-pdf-btn" class="btn-primary btn-large">Download Full Implementation PDF</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Footer -->
     <footer class="app-footer">
         <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>
         <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
     </footer>
 
-    <!-- Leaflet JS & Chart JS & Main JS -->
+    <!-- Leaflet JS & Chart JS & Client Script -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

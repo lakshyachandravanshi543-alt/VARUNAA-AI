@@ -1,18 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // UI Elements
-    const tabDirectory = document.getElementById('tab-directory');
-    const tabCustom = document.getElementById('tab-custom');
-    
-    const panelDirectory = document.getElementById('directory-panel');
-    const panelCustom = document.getElementById('custom-panel');
-    
     const riverSelect = document.getElementById('river-select');
     const generateReportBtn = document.getElementById('generate-report-btn');
     
-    const customProbeForm = document.getElementById('custom-probe-form');
     const reportLoader = document.getElementById('report-loader');
-    const reportSection = document.getElementById('scientific-report-section');
+    const reportSection = document.getElementById('scientific-inference-section');
     
     // Report Detail Fields
     const reportBadge = document.getElementById('report-badge');
@@ -23,60 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const metricDo = document.getElementById('metric-do');
     const metricTurb = document.getElementById('metric-turb');
     const metricTemp = document.getElementById('metric-temp');
+    const metricEc = document.getElementById('metric-ec');
+    const metricOrp = document.getElementById('metric-orp');
     
-    const pollutantsList = document.getElementById('pollutants-list');
+    const statusPh = document.getElementById('status-ph');
+    const statusDo = document.getElementById('status-do');
+    const statusTurb = document.getElementById('status-turb');
+    const statusTemp = document.getElementById('status-temp');
+    const statusEc = document.getElementById('status-ec');
+    const statusOrp = document.getElementById('status-orp');
+    
+    const xaiPredictedClass = document.getElementById('xai-predicted-class');
+    const confidencePercentageVal = document.getElementById('confidence-percentage-val');
+    const confidenceBarFill = document.getElementById('confidence-bar-fill');
+    
+    const shapListContainer = document.getElementById('shap-list-container');
     const remediationContent = document.getElementById('remediation-content');
     const downloadCsvBtn = document.getElementById('download-csv-btn');
 
     // Local report log history for CSV exporting
     let currentReportLog = null;
 
-    // --- TAB NAVIGATION SWITCHING ---
-    const switchTab = (activeTab, inactiveTab, activePanel, inactivePanel) => {
-        activeTab.classList.add('active');
-        activeTab.setAttribute('aria-selected', 'true');
-        inactiveTab.classList.remove('active');
-        inactiveTab.setAttribute('aria-selected', 'false');
-        
-        activePanel.style.display = 'block';
-        activePanel.classList.add('active');
-        inactivePanel.style.display = 'none';
-        inactivePanel.classList.remove('active');
-        
-        // Hide report when switching tabs to reset UX state
-        reportSection.style.display = 'none';
-    };
-
-    tabDirectory.addEventListener('click', () => {
-        switchTab(tabDirectory, tabCustom, panelDirectory, panelCustom);
-    });
-
-    tabCustom.addEventListener('click', () => {
-        switchTab(tabCustom, tabDirectory, panelCustom, panelDirectory);
-    });
-
-    // --- RANGE SLIDER SYNC ---
-    const fields = ['ph', 'do', 'turbidity', 'temperature'];
-    fields.forEach(id => {
-        const slider = document.getElementById(`${id}-slider`);
-        const numInput = document.getElementById(id);
-        if (slider && numInput) {
-            // Sync slider to text input
-            slider.addEventListener('input', (e) => {
-                numInput.value = e.target.value;
-            });
-            // Sync text input to slider
-            numInput.addEventListener('input', (e) => {
-                let val = parseFloat(e.target.value);
-                if (!isNaN(val)) {
-                    slider.value = val;
-                }
-            });
-        }
-    });
-
     // --- LEAFLET MAP INTEGRATION (Clean Light Voyager Style) ---
-    const map = L.map('map').setView([35, 10], 2.5);
+    const map = L.map('map').setView([25, 30], 2);
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
@@ -86,9 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let markers = {};
     const riverCoords = {
+        ganga: [25.3176, 82.9739],     // India
+        yamuna: [28.6139, 77.2090],    // India
         nile: [30.0444, 31.2357],      // Egypt
         rhine: [50.9375, 6.9603],      // Germany
-        thames: [51.5074, -0.1278]     // London
+        thames: [51.5074, -0.1278]     // UK
     };
 
     const getMarkerIcon = (color) => {
@@ -100,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="background-color:${hex}; width:16px; height:16px; border-radius:50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.15);"></div>`,
+            html: `<div style="background-color:${hex}; width:16px; height:16px; border-radius:50%; border: 3px solid white; box-shadow: none;"></div>`,
             iconSize: [20, 20],
             iconAnchor: [10, 10]
         });
@@ -144,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'line',
             data: {
                 labels: ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                labels: ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
                 datasets: [{
                     label: 'Global Water Quality Index (WQI)',
                     data: [82.5, 80.1, 78.4, 76.9, 74.2, 73.0, 70.5, 68.1, 65.4, 61.2, 57.8],
@@ -180,52 +145,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- COMPARATIVE METRICS VALIDATION ---
+    // --- 6D COMPARATIVE METRICS VALIDATION ---
     const checkMetricsThresholds = (rawSensors) => {
-        // Threshold configs
+        // Safe limits config
         const thresholds = {
             ph: { min: 6.5, max: 8.5 },
             do: { min: 5.0, max: 12.0 },
             turb: { min: 0.0, max: 25.0 },
-            temp: { min: 10.0, max: 25.0 }
+            temp: { min: 10.0, max: 25.0 },
+            ec: { min: 100.0, max: 1000.0 },
+            orp: { min: 200.0, max: 600.0 }
         };
 
-        const phVal = parseFloat(rawSensors.ph);
-        const doVal = parseFloat(rawSensors.do);
-        const turbVal = parseFloat(rawSensors.turbidity);
-        const tempVal = parseFloat(rawSensors.temperature);
+        const metrics = {
+            ph: { val: parseFloat(rawSensors.ph), card: document.getElementById('metric-card-ph'), msg: statusPh },
+            do: { val: parseFloat(rawSensors.do), card: document.getElementById('metric-card-do'), msg: statusDo },
+            turb: { val: parseFloat(rawSensors.turbidity), card: document.getElementById('metric-card-turb'), msg: statusTurb },
+            temp: { val: parseFloat(rawSensors.temperature), card: document.getElementById('metric-card-temp'), msg: statusTemp },
+            ec: { val: parseFloat(rawSensors.ec), card: document.getElementById('metric-card-ec'), msg: statusEc },
+            orp: { val: parseFloat(rawSensors.orp), card: document.getElementById('metric-card-orp'), msg: statusOrp }
+        };
 
-        // pH Validation
-        const cardPh = document.getElementById('metric-card-ph');
-        if (phVal < thresholds.ph.min || phVal > thresholds.ph.max) {
-            cardPh.classList.add('out-of-range');
-        } else {
-            cardPh.classList.remove('out-of-range');
-        }
-
-        // DO Validation
-        const cardDo = document.getElementById('metric-card-do');
-        if (doVal < thresholds.do.min || doVal > thresholds.do.max) {
-            cardDo.classList.add('out-of-range');
-        } else {
-            cardDo.classList.remove('out-of-range');
-        }
-
-        // Turbidity Validation
-        const cardTurb = document.getElementById('metric-card-turb');
-        if (turbVal < thresholds.turb.min || turbVal > thresholds.turb.max) {
-            cardTurb.classList.add('out-of-range');
-        } else {
-            cardTurb.classList.remove('out-of-range');
-        }
-
-        // Temperature Validation
-        const cardTemp = document.getElementById('metric-card-temp');
-        if (tempVal < thresholds.temp.min || tempVal > thresholds.temp.max) {
-            cardTemp.classList.add('out-of-range');
-        } else {
-            cardTemp.classList.remove('out-of-range');
-        }
+        Object.keys(metrics).forEach(key => {
+            const m = metrics[key];
+            const bounds = thresholds[key];
+            
+            if (m.val < bounds.min || m.val > bounds.max) {
+                m.card.classList.add('out-of-range');
+                m.msg.innerText = `Danger: Out of safe bounds!`;
+            } else {
+                m.card.classList.remove('out-of-range');
+                m.msg.innerText = `Normal Safe Range`;
+            }
+        });
     };
 
     // --- SCIENTIFIC DATA RENDER ---
@@ -234,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportLoader.style.display = 'none';
         
         // Setup meta details
-        reportRiverName.innerText = title;
+        reportRiverName.innerText = `Live Scientific Inference: ${title}`;
         const now = new Date();
         reportTimestamp.innerText = `Inference Timestamp: ${now.toLocaleDateString()} ${now.toLocaleTimeString()} | Status: Active Telemetry`;
         
@@ -258,39 +210,33 @@ document.addEventListener('DOMContentLoaded', () => {
             reportBadge.innerText += ` | ${weatherAlert}`;
         }
 
-        // Section A: Raw parameters (Comparative Analysis)
+        // Section A: Raw parameters (6D Metrics Grid)
         metricPh.innerText = parseFloat(rawSensors.ph).toFixed(2);
-        metricDo.innerText = `${parseFloat(rawSensors.do).toFixed(1)} mg/L`;
-        metricTurb.innerText = `${Math.round(rawSensors.turbidity)} NTU`;
-        metricTemp.innerText = `${parseFloat(rawSensors.temperature).toFixed(1)}°C`;
+        metricDo.innerText = parseFloat(rawSensors.do).toFixed(2);
+        metricTurb.innerText = Math.round(rawSensors.turbidity);
+        metricTemp.innerText = parseFloat(rawSensors.temperature).toFixed(1);
+        metricEc.innerText = parseFloat(rawSensors.ec).toFixed(1);
+        metricOrp.innerText = parseFloat(rawSensors.orp).toFixed(1);
         
-        // Apply out-of-range alerts and styling classes
+        // Check safe thresholds and apply conditional out-of-range styling
         checkMetricsThresholds(rawSensors);
         
-        // Section B: Detected Pollutants
-        pollutantsList.innerHTML = '';
-        const card = document.createElement('div');
-        card.className = 'pollutant-card';
+        // Section B: AI Confidence Probability
+        xaiPredictedClass.innerText = `Prediction: ${prediction.pollutant}`;
+        const confidence = prediction.confidence || 89;
+        confidencePercentageVal.innerText = `${confidence}% AI Confidence Probability`;
+        confidenceBarFill.style.width = `${confidence}%`;
         
-        // Scientific compound listing
-        const chemList = (prediction.specific_pollutants || []).join(', ');
+        // Section C: Explainable AI SHAP Breakdown
+        shapListContainer.innerHTML = '';
+        (prediction.shap || []).forEach(shapText => {
+            const li = document.createElement('li');
+            li.className = 'shap-item';
+            li.innerText = shapText;
+            shapListContainer.appendChild(li);
+        });
         
-        card.innerHTML = `
-            <div class="pollutant-header">
-                <span class="pollutant-cat">${prediction.pollutant}</span>
-                <span class="pollutant-formula">${prediction.state || 'Liquid'}</span>
-            </div>
-            <p class="pollutant-sci-def">
-                <strong>Ecosystem Profile:</strong> ${prediction.chemical_definition || prediction.details}
-            </p>
-            <div class="pollutant-limits">
-                <div class="limit-item"><strong>Chemical Compounds Detected:</strong> ${chemList}</div>
-                <div class="limit-item"><strong>Permissible Regulatory Limits:</strong> ${prediction.threshold || 'N/A'}</div>
-            </div>
-        `;
-        pollutantsList.appendChild(card);
-        
-        // Section C: Actionable Remediation
+        // Section D: Remediation Strategy
         remediationContent.innerHTML = prediction.action || 'No critical remediation required at this telemetry index.';
         
         // Reveal Section
@@ -304,8 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
             do: rawSensors.do,
             turbidity: rawSensors.turbidity,
             temp: rawSensors.temperature,
+            ec: rawSensors.ec,
+            orp: rawSensors.orp,
             verdict: prediction.pollutant,
-            compounds: chemList,
+            confidence: confidence,
             timestamp: now.toISOString()
         };
     };
@@ -317,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reportLoader.style.display = 'flex';
 
         try {
-            // Query network state API from app.py
             const response = await fetch('/api/network_state');
             if (!response.ok) throw new Error('API server returned error.');
             
@@ -326,7 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (selectedRiver) {
                 // Focus map on the selected river coordinates
-                map.flyTo(riverCoords[selectedId], 5, { duration: 1.5 });
+                if (riverCoords[selectedId]) {
+                    map.flyTo(riverCoords[selectedId], 5, { duration: 1.5 });
+                }
                 
                 setTimeout(() => {
                     displayReport(
@@ -354,53 +303,12 @@ document.addEventListener('DOMContentLoaded', () => {
         triggerReportGeneration(selectedId);
     });
 
-    // --- CUSTOM PROBE FORM SUBMIT ---
-    customProbeForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Gather input data
-        const payload = {
-            ph: parseFloat(document.getElementById('ph').value),
-            do: parseFloat(document.getElementById('do').value),
-            turbidity: parseFloat(document.getElementById('turbidity').value),
-            temperature: parseFloat(document.getElementById('temperature').value)
-        };
-
-        // Show Loader
-        reportSection.style.display = 'none';
-        reportLoader.style.display = 'flex';
-
-        try {
-            const response = await fetch('/api/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error('Server classification model failed.');
-            const prediction = await response.json();
-            
-            setTimeout(() => {
-                displayReport(
-                    "Custom Probe Location",
-                    payload,
-                    prediction,
-                    null
-                );
-            }, 600);
-
-        } catch (error) {
-            reportLoader.style.display = 'none';
-            alert(`Error classifying custom inputs: ${error.message}`);
-        }
-    });
-
     // --- CSV LOG EXPORTER ---
     downloadCsvBtn.addEventListener('click', () => {
         if (!currentReportLog) return;
         
-        const header = "Timestamp,Location,pH,DO (mg/L),Turbidity (NTU),Temperature (C),AI Inference,Compounds Detected\n";
-        const row = `"${currentReportLog.timestamp}","${currentReportLog.title}",${currentReportLog.ph},${currentReportLog.do},${currentReportLog.turbidity},${currentReportLog.temp},"${currentReportLog.verdict}","${currentReportLog.compounds}"\n`;
+        const header = "Timestamp,Location,pH,DO (mg/L),Turbidity (NTU),Temperature (C),EC (uS/cm),ORP (mV),AI Inference,Confidence (%)\n";
+        const row = `"${currentReportLog.timestamp}","${currentReportLog.title}",${currentReportLog.ph},${currentReportLog.do},${currentReportLog.turbidity},${currentReportLog.temp},${currentReportLog.ec},${currentReportLog.orp},"${currentReportLog.verdict}",${currentReportLog.confidence}\n`;
         
         const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(header + row);
         
@@ -411,58 +319,5 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         document.body.removeChild(link);
     });
-
-    // --- REMEDIATION ACTION PLAN SCREEN TRANSITIONS ---
-    const viewCleaningStrategyBtn = document.getElementById('view-cleaning-strategy-btn');
-    const remediationPlanView = document.getElementById('remediation-plan-view');
-    const backToReportBtn = document.getElementById('back-to-report-btn');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn');
-
-    if (viewCleaningStrategyBtn && remediationPlanView) {
-        viewCleaningStrategyBtn.addEventListener('click', () => {
-            remediationPlanView.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Lock background scrolling
-            remediationPlanView.scrollTop = 0;
-        });
-    }
-
-    if (backToReportBtn && remediationPlanView) {
-        backToReportBtn.addEventListener('click', () => {
-            remediationPlanView.style.display = 'none';
-            document.body.style.overflow = ''; // Restore background scrolling
-        });
-    }
-
-    if (downloadPdfBtn) {
-        downloadPdfBtn.addEventListener('click', () => {
-            const locName = currentReportLog ? currentReportLog.title : 'Custom Location';
-            const logTime = currentReportLog ? currentReportLog.timestamp : new Date().toISOString();
-            const logVerdict = currentReportLog ? currentReportLog.verdict : 'Pending Classification';
-            
-            // Build text payload representing the implementation PDF document
-            const textDoc = `VARUNA AI REMEDIATION SYSTEM COMPLIANCE REPORT\n` +
-                            `==================================================\n` +
-                            `Site Location: ${locName}\n` +
-                            `Timestamp: ${logTime}\n` +
-                            `Inferred Impurity Class: ${logVerdict}\n\n` +
-                            `MITIGATION PROTOCOL ACTION ITEMS:\n\n` +
-                            `[1] LOCAL COST-EFFECTIVE INTERVENTIONS:\n` +
-                            `  - Bioremediation: Culture inoculations matching microbial respiration needs.\n` +
-                            `  - Constructed Wetlands: Floating botanical filters (rhizofiltration).\n` +
-                            `  - Targeted Aeration: Solar mechanical aerators for instant oxygenation.\n\n` +
-                            `[2] PREMIUM ADVANCED GLOBAL SYSTEMS:\n` +
-                            `  - Nanobubble Generators (Japan/EU): Suspended hyper-oxygenated systems.\n` +
-                            `  - Autonomous Interceptor Vessels (Netherlands): AI-guided debris collection.\n` +
-                            `  - Ultrasonic Algae Control: Frequential cyanobacteria cell lysis.\n`;
-            
-            const blob = new Blob([textDoc], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Varuna_Remediation_Action_Plan_${locName.replace(/\s+/g, '_')}.txt`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    }
 
 });

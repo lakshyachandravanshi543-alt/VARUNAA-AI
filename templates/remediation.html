@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remediation Action Plan — Varuna AI</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background-color: var(--canvas-bg);">
+
+    <div class="remediation-plan-screen-static">
+        <div class="remediation-plan-container">
+            <!-- Header Section -->
+            <header class="remediation-header">
+                <a href="/" class="btn-ghost" style="text-decoration: none;">← Back to Scientific Report</a>
+                <div class="remediation-title-wrap">
+                    <h1 class="remediation-title">Remediation Action Plan.</h1>
+                    <p class="remediation-subtitle">AI-curated mitigation strategies based on detected pollutants.</p>
+                </div>
+            </header>
+            
+            <!-- Strategy Grid (2-Column Layout) -->
+            <div class="strategy-grid-remediation">
+                <!-- Left Card: Cost-Effective & Rapid Deployment -->
+                <div class="strategy-card card-snow">
+                    <span class="card-eyebrow">Immediate Deployment</span>
+                    <h2 class="card-headline">Cost-Effective & Rapid</h2>
+                    <p class="card-purpose">High-impact, budget-friendly local intervention methods.</p>
+                    
+                    <div class="strategy-items">
+                        <div class="strategy-item">
+                            <div class="item-icon">🦠</div>
+                            <div class="item-text">
+                                <span class="item-title">Bioremediation:</span>
+                                <span class="item-desc">Introduction of specific microbial cultures to eat organic waste.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🌱</div>
+                            <div class="item-text">
+                                <span class="item-title">Constructed Wetlands:</span>
+                                <span class="item-desc">Floating plant beds to naturally filter heavy metals.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">💨</div>
+                            <div class="item-text">
+                                <span class="item-title">Targeted Aeration:</span>
+                                <span class="item-desc">Low-cost mechanical aerators to immediately boost DO levels.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Card: Advanced Global Technologies -->
+                <div class="strategy-card card-snow">
+                    <div class="card-header-row">
+                        <span class="card-eyebrow">Advanced Engineering</span>
+                        <span class="premium-badge-text">Premium Solution</span>
+                    </div>
+                    <h2 class="card-headline">Advanced Global Technologies</h2>
+                    <p class="card-purpose">Cutting-edge technologies deployed in leading international waters.</p>
+                    
+                    <div class="strategy-items">
+                        <div class="strategy-item">
+                            <div class="item-icon">🧼</div>
+                            <div class="item-text">
+                                <span class="item-title">Nanobubble Generators (Japan/EU):</span>
+                                <span class="item-desc">Infuses microscopic oxygen bubbles that remain suspended for months, breaking down deep-layer toxins without chemicals.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🚢</div>
+                            <div class="item-text">
+                                <span class="item-title">Autonomous Interceptor Vessels (Netherlands):</span>
+                                <span class="item-desc">Solar-powered, AI-guided conveyor systems for mass solid-waste extraction.</span>
+                            </div>
+                        </div>
+                        <div class="strategy-item">
+                            <div class="item-icon">🔊</div>
+                            <div class="item-text">
+                                <span class="item-title">Ultrasonic Algae Control:</span>
+                                <span class="item-desc">Emits specific sound frequencies to safely destroy harmful algal blooms without harming fish.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="remediation-footer">
+                <button id="download-pdf-btn-static" class="btn-primary-azure btn-large">Download Full Implementation PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('download-pdf-btn-static').addEventListener('click', () => {
+            const docText = "VARUNA AI REMEDIATION SYSTEM COMPLIANCE REPORT\n" +
+                            "==================================================\n" +
+                            "Site Location: Global River Systems\n" +
+                            "Timestamp: " + new Date().toISOString() + "\n\n" +
+                            "MITIGATION PROTOCOL ACTION ITEMS:\n\n" +
+                            "[1] LOCAL COST-EFFECTIVE INTERVENTIONS:\n" +
+                            "  - Bioremediation: Culture inoculations matching microbial respiration needs.\n" +
+                            "  - Constructed Wetlands: Floating botanical filters (rhizofiltration).\n" +
+                            "  - Targeted Aeration: Solar mechanical aerators for instant oxygenation.\n\n" +
+                            "[2] PREMIUM ADVANCED GLOBAL SYSTEMS:\n" +
+                            "  - Nanobubble Generators (Japan/EU): Suspended hyper-oxygenated systems.\n" +
+                            "  - Autonomous Interceptor Vessels (Netherlands): AI-guided debris collection.\n" +
+                            "  - Ultrasonic Algae Control: Frequential cyanobacteria cell lysis.\n";
+
+            const blob = new Blob([docText], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Varuna_Full_Remediation_Plan.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
