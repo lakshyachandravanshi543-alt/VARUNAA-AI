@@ -348,7 +348,11 @@ def remediation():
     # Get strategies matching this pollutant
     strategies = REMEDIATION_STRATEGIES.get(pollutant, REMEDIATION_STRATEGIES["Industrial Heavy Metal Bioaccumulation"])
     
+    # Is water clean?
+    water_is_clean = (pollutant in ["Clean Water / Baseline Condition", "Natural Mud Runoff (Rain Induced)"])
+    
     return render_template('remediation.html',
+                           water_is_clean=water_is_clean,
                            detected_pollutant=pollutant,
                            local_strategy_1_title=strategies["local_1_title"],
                            local_strategy_1_desc=strategies["local_1_desc"],

@@ -15,6 +15,12 @@ class VarunaAITestCase(unittest.TestCase):
         self.assertIn(b'Varuna', response.data)
         self.assertIn(b'River Directory', response.data)
 
+    def test_remediation_route(self):
+        """Test that the remediation route returns HTTP 200 and loads HTML."""
+        response = self.client.get('/remediation')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Remediation Action Plan', response.data)
+
     def test_network_state_endpoint(self):
         """Test that the network_state API returns river lists with correct structure."""
         response = self.client.get('/api/network_state')

@@ -17,94 +17,112 @@
                 <a href="{{ url_for('index') }}" class="btn-ghost" style="text-decoration: none;">← Back to Live Inference</a>
                 <div class="remediation-title-wrap">
                     <h1 class="remediation-title">Remediation Action Plan.</h1>
-                    <p class="remediation-subtitle">
-                        AI-curated mitigation strategy specifically for: 
-                        <strong class="highlight-pollutant">{{ detected_pollutant | default('Industrial Heavy Metal Bioaccumulation') }}</strong>
-                    </p>
                 </div>
             </header>
-            
-            <!-- Strategy Grid (2-Column Layout) -->
-            <div class="strategy-grid-remediation">
-                <!-- Left Card: Cost-Effective & Local Deployment -->
-                <div class="strategy-card card-snow" style="padding: 40px;">
-                    <span class="card-eyebrow">Immediate Deployment</span>
-                    <h2 class="card-headline" style="font-size: 24px; font-weight: 600;">Cost-Effective & Local</h2>
-                    <p class="card-purpose">High-impact, budget-friendly local intervention methods.</p>
-                    
-                    <div class="strategy-items">
-                        <div class="strategy-item">
-                            <div class="item-icon">🌱</div>
-                            <div class="item-text">
-                                <span class="item-title">{{ local_strategy_1_title | default('Phytoremediation Rhizofiltration') }}</span>
-                                <span class="item-desc">{{ local_strategy_1_desc | default('Deploy Vetiver Grass (Chrysopogon zizanioides) and Water Hyacinth to absorb toxic metal ions.') }}</span>
+
+            {% if water_is_clean %}
+            <!-- Clean State: Single Centered Card -->
+            <div class="clean-state-wrapper" style="margin-top: 2rem;">
+                <div class="strategy-card card-snow centered-clean-card" style="padding: 60px 40px; text-align: center; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.5rem;">
+                    <div class="success-badge" style="font-size: 3rem; line-height: 1; color: #30d158; width: 64px; height: 64px; border: 3px solid #30d158; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">✓</div>
+                    <h2 style="font-size: 24px; font-weight: 600; color: var(--text-primary); margin: 0;">Water Quality Optimal</h2>
+                    <p style="font-size: 1rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                        Current impurities are within safe natural thresholds. No active remediation or cleaning is required at this time.
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <!-- Polluted State: Action Plan Strategy Grid -->
+            <div class="polluted-state-wrapper" style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 2rem;">
+                <div class="remediation-title-wrap" style="text-align: center;">
+                    <h2 class="polluted-headline" style="font-size: 32px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+                        Action Plan for: <span class="highlight-pollutant">{{ detected_pollutant }}</span>
+                    </h2>
+                </div>
+                
+                <div class="strategy-grid-remediation">
+                    <!-- Left Card: Cost-Effective Deployment -->
+                    <div class="strategy-card card-snow" style="padding: 40px;">
+                        <span class="card-eyebrow">Immediate Deployment</span>
+                        <h2 class="card-headline" style="font-size: 24px; font-weight: 600;">Cost-Effective Deployment</h2>
+                        <p class="card-purpose">High-impact, budget-friendly local intervention methods.</p>
+                        
+                        <div class="strategy-items">
+                            <div class="strategy-item">
+                                <div class="item-icon">🌱</div>
+                                <div class="item-text">
+                                    <span class="item-title">{{ local_strategy_1_title }}</span>
+                                    <span class="item-desc">{{ local_strategy_1_desc }}</span>
+                                </div>
+                            </div>
+                            <div class="strategy-item">
+                                <div class="item-icon">🪨</div>
+                                <div class="item-text">
+                                    <span class="item-title">{{ local_strategy_2_title }}</span>
+                                    <span class="item-desc">{{ local_strategy_2_desc }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">🪨</div>
-                            <div class="item-text">
-                                <span class="item-title">{{ local_strategy_2_title | default('Bio-Char Permeable Barriers') }}</span>
-                                <span class="item-desc">{{ local_strategy_2_desc | default('Apply granular activated bio-char filters at narrow channels to physically trap metal ions.') }}</span>
+                    </div>
+
+                    <!-- Right Card: Advanced Global Technologies -->
+                    <div class="strategy-card card-snow" style="padding: 40px;">
+                        <div class="card-header-row">
+                            <span class="card-eyebrow">Advanced Engineering</span>
+                            <span class="premium-badge-text">Premium Solution</span>
+                        </div>
+                        <h2 class="card-headline" style="font-size: 24px; font-weight: 600;">Advanced Global Technologies</h2>
+                        <p class="card-purpose">Cutting-edge technologies deployed in leading international waters.</p>
+                        
+                        <div class="strategy-items">
+                            <div class="strategy-item">
+                                <div class="item-icon">⚡</div>
+                                <div class="item-text">
+                                    <span class="item-title">{{ global_strategy_1_title }}</span>
+                                    <span class="item-desc">{{ global_strategy_1_desc }}</span>
+                                </div>
+                            </div>
+                            <div class="strategy-item">
+                                <div class="item-icon">🤖</div>
+                                <div class="item-text">
+                                    <span class="item-title">{{ global_strategy_2_title }}</span>
+                                    <span class="item-desc">{{ global_strategy_2_desc }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Card: Advanced Global Technologies -->
-                <div class="strategy-card card-snow" style="padding: 40px;">
-                    <div class="card-header-row">
-                        <span class="card-eyebrow">Advanced Engineering</span>
-                        <span class="premium-badge-text">Premium Solution</span>
-                    </div>
-                    <h2 class="card-headline" style="font-size: 24px; font-weight: 600;">Advanced Global Technologies</h2>
-                    <p class="card-purpose">Cutting-edge technologies deployed in leading international waters.</p>
-                    
-                    <div class="strategy-items">
-                        <div class="strategy-item">
-                            <div class="item-icon">⚡</div>
-                            <div class="item-text">
-                                <span class="item-title">{{ global_strategy_1_title | default('Electrocoagulation (EC)') }}</span>
-                                <span class="item-desc">{{ global_strategy_1_desc | default('Pass electrical current through sacrificial iron/aluminum anodes to precipitate toxic cations.') }}</span>
-                            </div>
-                        </div>
-                        <div class="strategy-item">
-                            <div class="item-icon">🤖</div>
-                            <div class="item-text">
-                                <span class="item-title">{{ global_strategy_2_title | default('Autonomous Nanomaterial Sorbents') }}</span>
-                                <span class="item-desc">{{ global_strategy_2_desc | default('Deploy solar-powered mechanical filter drones equipped with magnetic iron oxide nanoparticles to capture toxic cations.') }}</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Footer Action -->
+                <div class="remediation-footer">
+                    <button id="download-pdf-btn-static" class="btn-primary-azure btn-large" style="padding: 16px 40px; border-radius: 999px;">
+                        Download {{ detected_pollutant }} Implementation PDF
+                    </button>
                 </div>
             </div>
-
-            <!-- Footer Action -->
-            <div class="remediation-footer">
-                <button id="download-pdf-btn-static" class="btn-primary-azure btn-large" style="padding: 16px 40px; border-radius: 999px;">
-                    Download {{ detected_pollutant | default('Industrial Heavy Metal Bioaccumulation') }} Implementation PDF
-                </button>
-            </div>
+            {% endif %}
         </div>
     </div>
 
+    {% if not water_is_clean %}
     <script>
         document.getElementById('download-pdf-btn-static').addEventListener('click', () => {
-            const pollutantName = "{{ detected_pollutant | default('Industrial Heavy Metal Bioaccumulation') }}";
+            const pollutantName = "{{ detected_pollutant }}";
             const docText = `VARUNA AI REMEDIATION SYSTEM COMPLIANCE REPORT\n` +
                             `==================================================\n` +
                             `Mitigation Protocol: ${pollutantName}\n` +
                             `Timestamp: ${new Date().toISOString()}\n\n` +
                             `MITIGATION PROTOCOL ACTION ITEMS:\n\n` +
                             `[1] LOCAL COST-EFFECTIVE INTERVENTIONS:\n` +
-                            `  - {{ local_strategy_1_title | default('Phytoremediation Rhizofiltration') }}:\n` +
-                            `    {{ local_strategy_1_desc | default('Deploy Vetiver Grass (Chrysopogon zizanioides) and Water Hyacinth to absorb toxic metal ions.') }}\n` +
-                            `  - {{ local_strategy_2_title | default('Bio-Char Permeable Barriers') }}:\n` +
-                            `    {{ local_strategy_2_desc | default('Apply granular activated bio-char filters at narrow channels to physically trap metal ions.') }}\n\n` +
+                            `  - {{ local_strategy_1_title }}:\n` +
+                            `    {{ local_strategy_1_desc }}\n` +
+                            `  - {{ local_strategy_2_title }}:\n` +
+                            `    {{ local_strategy_2_desc }}\n\n` +
                             `[2] PREMIUM ADVANCED GLOBAL SYSTEMS:\n` +
-                            `  - {{ global_strategy_1_title | default('Electrocoagulation (EC)') }}:\n` +
-                            `    {{ global_strategy_1_desc | default('Pass electrical current through sacrificial iron/aluminum anodes to precipitate toxic cations.') }}\n` +
-                            `  - {{ global_strategy_2_title | default('Autonomous Nanomaterial Sorbents') }}:\n` +
-                            `    {{ global_strategy_2_desc | default('Deploy solar-powered mechanical filter drones equipped with magnetic iron oxide nanoparticles to capture toxic cations.') }}\n`;
+                            `  - {{ global_strategy_1_title }}:\n` +
+                            `    {{ global_strategy_1_desc }}\n` +
+                            `  - {{ global_strategy_2_title }}:\n` +
+                            `    {{ global_strategy_2_desc }}\n`;
 
             const blob = new Blob([docText], { type: 'text/plain;charset=utf-8' });
             const link = document.createElement('a');
@@ -115,5 +133,6 @@
             document.body.removeChild(link);
         });
     </script>
+    {% endif %}
 </body>
 </html>
