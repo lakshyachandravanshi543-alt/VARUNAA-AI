@@ -111,6 +111,19 @@
                 </div>
             </div>
 
+            <!-- Local Weather Context Widget -->
+            <div class="weather-context-widget card-snow" style="display: flex; justify-content: space-between; align-items: center; padding: 28px; border-radius: 28px; border: 1px solid var(--border-color); margin-bottom: 2.5rem; background-color: #ffffff; box-shadow: none;">
+                <div class="weather-left" style="display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">
+                    <span id="weather-widget-icon" style="font-size: 1.5rem; line-height: 1;">☁️</span>
+                    <span>Current Weather: <strong id="weather-temp-val">{{ weather_temp }}</strong>°C | <span id="weather-status-val">{{ weather_status }}</span> (Context Active)</span>
+                </div>
+                <div class="weather-right">
+                    <span class="frosted-pill-badge" style="background: rgba(245, 245, 247, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">
+                        AI System Note: <span id="ai-context-msg-val">{{ ai_context_msg }}</span>
+                    </span>
+                </div>
+            </div>
+
             <!-- Dashboard Sub-Heading for Spec Sheet -->
             <div class="spec-heading-divider">
                 <h3>Technical Parameters Spec Sheet</h3>

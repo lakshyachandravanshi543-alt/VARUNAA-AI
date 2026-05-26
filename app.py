@@ -189,6 +189,17 @@ def simulate_network():
             
             if weather_state == 'Heavy Rainfall':
                 turb = round(random.uniform(150, 400), 2)
+                w_status = "Rainy"
+                w_temp = round(random.uniform(14.0, 19.0), 1)
+                w_msg = "Heavy precipitation detected; adjusting turbidity alarm boundaries."
+            elif weather_state == 'Cloudy':
+                w_status = "Cloudy"
+                w_temp = round(random.uniform(20.0, 24.0), 1)
+                w_msg = "Overcast sky. Standard monitoring active."
+            else:
+                w_status = "Clear"
+                w_temp = round(random.uniform(25.0, 31.0), 1)
+                w_msg = "Optimal solar irradiance. Buoy charging rates stable."
             
             prediction = run_inference(ph, do, turb, temp)
             
@@ -207,6 +218,7 @@ def simulate_network():
                     "shap": ["Weather API Data (+60% impact)", "DO Steady (+20% impact)", "pH Balanced (+20% impact)"]
                 }
                 context_alert = "🌧️ Weather API Override Active"
+                w_msg = "Heavy rainfall override active: suppressing turbidity threshold alerts."
             elif weather_state == 'Heavy Rainfall':
                 context_alert = "🌧️ Raining (Baselines Adjusted)"
 
@@ -216,6 +228,9 @@ def simulate_network():
                 "lat": rv["lat"],
                 "lng": rv["lng"],
                 "weather": context_alert,
+                "weather_temp": w_temp,
+                "weather_status": w_status,
+                "ai_context_msg": w_msg,
                 "raw_sensors": {"ph": ph, "do": do, "turbidity": turb, "temperature": temp, "ec": ec, "orp": orp},
                 "prediction": prediction
             })
@@ -238,12 +253,18 @@ def init_network_state():
         orp = round(random.uniform(*rv['base_orp']), 1)
         
         prediction = run_inference(ph, do, turb, temp)
+        w_temp = 24.5
+        w_status = "Cloudy"
+        w_msg = "Standard atmospheric pressures, baselines nominal."
         updates.append({
             "id": rv["id"],
             "name": rv["name"],
             "lat": rv["lat"],
             "lng": rv["lng"],
             "weather": None,
+            "weather_temp": w_temp,
+            "weather_status": w_status,
+            "ai_context_msg": w_msg,
             "raw_sensors": {"ph": ph, "do": do, "turbidity": turb, "temperature": temp, "ec": ec, "orp": orp},
             "prediction": prediction
         })
@@ -332,7 +353,10 @@ REMEDIATION_STRATEGIES = {
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',
+                           weather_temp=26.8,
+                           weather_status="Cloudy",
+                           ai_context_msg="Standard atmospheric pressures, baselines nominal.")
 
 @app.route('/remediation')
 def remediation():

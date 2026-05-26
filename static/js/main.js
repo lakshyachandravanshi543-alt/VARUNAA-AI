@@ -181,9 +181,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- SCIENTIFIC DATA RENDER ---
-    const displayReport = (title, rawSensors, prediction, weatherAlert) => {
+    const displayReport = (title, rawSensors, prediction, weatherAlert, weatherTemp, weatherStatus, aiContextMsg) => {
         // Hide loader
         reportLoader.style.display = 'none';
+        
+        // Update Weather Context Widget details
+        const tempValEl = document.getElementById('weather-temp-val');
+        const statusValEl = document.getElementById('weather-status-val');
+        const aiMsgValEl = document.getElementById('ai-context-msg-val');
+        const iconEl = document.getElementById('weather-widget-icon');
+        
+        if (tempValEl && weatherTemp !== undefined) {
+            tempValEl.innerText = weatherTemp;
+        }
+        if (statusValEl && weatherStatus) {
+            statusValEl.innerText = weatherStatus;
+        }
+        if (aiMsgValEl && aiContextMsg) {
+            aiMsgValEl.innerText = aiContextMsg;
+        }
+        if (iconEl && weatherStatus) {
+            iconEl.innerText = (weatherStatus === 'Rainy' || weatherStatus === 'Rain') ? '🌧️' : ((weatherStatus === 'Cloudy' || weatherStatus === 'Overcast') ? '☁️' : '☀️');
+        }
         
         // Setup meta details
         reportRiverName.innerText = `Live Scientific Inference: ${title}`;
@@ -282,7 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         selectedRiver.name,
                         selectedRiver.raw_sensors,
                         selectedRiver.prediction,
-                        selectedRiver.weather
+                        selectedRiver.weather,
+                        selectedRiver.weather_temp,
+                        selectedRiver.weather_status,
+                        selectedRiver.ai_context_msg
                     );
                 }, 600);
             } else {
