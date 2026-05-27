@@ -387,6 +387,25 @@ def remediation():
                            global_strategy_2_title=strategies["global_2_title"],
                            global_strategy_2_desc=strategies["global_2_desc"])
 
+@app.route('/hardware')
+def hardware():
+    backend_url = request.host_url.rstrip('/')
+    temperature_range = "10.0 - 25.0 °C"
+    
+    # Get current weather status from latest telemetry
+    with lock:
+        latest = latest_inference
+    weather_status = "Rain" # default to Rain so the conditional evaluates to True on mockup
+    if latest and latest.get('prediction'):
+        pred = latest['prediction']
+        if pred.get('color') == 'green' and "Natural Mud" in pred.get('pollutant', ''):
+            weather_status = "Rain"
+            
+    return render_template('hardware.html',
+                           backend_url=backend_url,
+                           temperature_range=temperature_range,
+                           weather_status=weather_status)
+
 @app.route('/api/network_state', methods=['GET'])
 def get_network_state():
     with network_lock:
