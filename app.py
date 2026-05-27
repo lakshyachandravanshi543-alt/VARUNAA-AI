@@ -143,9 +143,24 @@ VIRTUAL_RIVERS = [
 ]
 
 def run_inference(ph, do, turbidity, temp):
-    """Helper to run the ML model."""
-    if not model or not scaler:
+    """Helper to run the ML model with a Rule-Based Safety Override."""
+    
+    # 1. THE ENTERPRISE GUARDRAIL (Heuristic Override)
+    # Check if parameters are strictly within the natural baseline thresholds
+    baseline_nominal = True
+    
+    if not (6.5 <= ph <= 8.5): baseline_nominal = False
+    if not (do >= 4.0): baseline_nominal = False
+    if not (turbidity <= 15.0): baseline_nominal = False
+    
+    if baseline_nominal:
+        # Directly return CLASS 0 ("Clean Water / Baseline Condition") which is Green/Safe
         return CLASSES.get(0)
+
+    # 2. ML INFERENCE (If baseline is broken, run the AI to classify the pollutant)
+    if not model or not scaler:
+        return CLASSES.get(0) 
+        
     import pandas as pd
     features = pd.DataFrame(
         [[float(ph), float(do), float(turbidity), float(temp)]], 
@@ -153,6 +168,7 @@ def run_inference(ph, do, turbidity, temp):
     )
     features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)[0]
+    
     return CLASSES.get(int(prediction), CLASSES[0])
 
 def simulate_network():
