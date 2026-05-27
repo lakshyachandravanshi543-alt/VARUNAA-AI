@@ -32,7 +32,7 @@ By mapping the non-linear correlations across these 6 scalar parameters, Varuna 
     *   **Polluted State:** Displays tailored mitigation plans in a 2-column grid comparing *"Cost-Effective Deployment"* (e.g., Phytoremediation, Bio-char barriers) with *"Advanced Global Technologies"* (e.g., Electrocoagulation, Nanobubble generators).
 *   Generates a dynamic PDF text compliance log download matching the detected pollutant index.
 
-### 4. Edge Hardware Specs (`/hardware`)
+### 4. Edge Hardware Specs & Industrial Upgrades (`/hardware`)
 *   Detailed walkthrough of **The Portable Smart Wand** BOM (Bill of Materials) kept under **₹8,500**:
     1.  **Core Brain:** ESP32 DevKitC v4 edge AI processing.
     2.  **Digital Validation:** DS18B20 digital temperature probe.
@@ -41,6 +41,9 @@ By mapping the non-linear correlations across these 6 scalar parameters, Varuna 
     5.  **Acidity Probe:** Analog BNC pH sensor module.
     6.  **Oxidation Monitor:** Analog ORP sensor module.
     7.  **Power & Ruggedization:** Dual 18650 Li-ion cells housed in an IP67 PVC chassis.
+*   **Industrial Scalability Upgrades:**
+    -   **Anti-Biofouling Management:** Automated mechanical wipers and ultrasonic transducers to prevent bio-buildup, ensuring zero sensor drift during remote deployments.
+    -   **Long-Range Telemetry (LoRaWAN):** Integrated LoRaWAN/NB-IoT module to transmit 6-dimensional telemetry data up to 15 kilometers without relying on local municipal Wi-Fi.
 
 ---
 
