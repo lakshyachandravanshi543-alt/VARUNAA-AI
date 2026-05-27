@@ -106,6 +106,36 @@
 
         </section>
 
+        <!-- Industrial Scalability Upgrades Header -->
+        <section class="upgrades-header" style="margin-top: 4rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 24px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.015em; margin: 0;">Industrial Scalability Upgrades</h2>
+        </section>
+
+        <!-- Upgrades Grid Layout (2-Column) -->
+        <section class="upgrades-grid-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+            
+            <!-- Card 1: Anti-Biofouling Management -->
+            <div class="strategy-card card-snow" style="padding: 40px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
+                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">🧼</div>
+                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Anti-Biofouling Management</span>
+                <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 0;">Automated Sensor Maintenance.</h3>
+                <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                    Equipped with automated mechanical wipers and ultrasonic transducers to prevent algal and bacterial buildup. Ensures zero sensor drift and maintains EPA-level accuracy during prolonged remote deployments.
+                </p>
+            </div>
+
+            <!-- Card 2: Long-Range Telemetry (LoRaWAN) -->
+            <div class="strategy-card card-snow" style="padding: 40px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
+                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">📡</div>
+                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Long-Range Telemetry (LoRaWAN)</span>
+                <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 0;">Off-Grid Data Transmission.</h3>
+                <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                    Upgraded from standard Wi-Fi to integrated LoRaWAN and NB-IoT modules. Capable of securely transmitting 6-dimensional telemetry data up to 15 kilometers without relying on local municipal network infrastructure.
+                </p>
+            </div>
+
+        </section>
+
         <!-- BOM Cost Footer Warning -->
         <footer class="remediation-footer" style="margin-top: 2rem; margin-bottom: 4rem;">
             <p style="font-size: 0.85rem; font-style: italic; color: var(--text-secondary); text-align: center;">
@@ -120,11 +150,16 @@
         <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
     </footer>
 
-    <!-- Style overrides to support responsive 3-column layouts -->
+    <!-- Style overrides to support responsive layouts -->
     <style>
         @media (max-width: 990px) {
-            .hardware-grid-section {
+            .hardware-grid-section, .upgrades-grid-section {
                 grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .upgrades-grid-section {
+                grid-template-columns: 1fr !important;
             }
         }
         @media (max-width: 650px) {
