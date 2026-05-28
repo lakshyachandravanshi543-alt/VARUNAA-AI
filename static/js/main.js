@@ -258,6 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Section D: Remediation Strategy
         remediationContent.innerHTML = prediction.action || 'No critical remediation required at this telemetry index.';
         
+        // Update the remediation plan link dynamically with query parameters
+        const viewRemediationBtn = document.querySelector('.dashboard-footer-action a');
+        if (viewRemediationBtn) {
+            viewRemediationBtn.href = `/remediation?ph=${rawSensors.ph}&do=${rawSensors.do}&turbidity=${rawSensors.turbidity}&temperature=${rawSensors.temperature}&ec=${rawSensors.ec}&orp=${rawSensors.orp}&pollutant=${encodeURIComponent(prediction.pollutant)}`;
+        }
+        
         // Reveal Section
         reportSection.style.display = 'block';
         reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -295,6 +301,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (riverCoords[selectedId]) {
                     map.flyTo(riverCoords[selectedId], 5, { duration: 1.5 });
                 }
+                
+                // POST to /api/predict to update server-side latest_inference state in background
+                fetch('/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ph: parseFloat(selectedRiver.raw_sensors.ph),
+                        do: parseFloat(selectedRiver.raw_sensors.do),
+                        turbidity: parseFloat(selectedRiver.raw_sensors.turbidity),
+                        temperature: parseFloat(selectedRiver.raw_sensors.temperature),
+                        ec: parseFloat(selectedRiver.raw_sensors.ec),
+                        orp: parseFloat(selectedRiver.raw_sensors.orp)
+                    })
+                }).catch(err => console.error("Failed to sync latest inference state with server:", err));
                 
                 setTimeout(() => {
                     displayReport(

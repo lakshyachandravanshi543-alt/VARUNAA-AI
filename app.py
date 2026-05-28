@@ -487,7 +487,22 @@ def remediation():
         
     pollutant = "Industrial Heavy Metal Bioaccumulation"  # default fallback
     raw_sensors = {"ph": 7.2, "do": 6.5, "turbidity": 5.0, "temperature": 24.0, "ec": 450.0, "orp": 320.0}
-    if latest:
+    
+    # Check if parameters are passed in the query string (from homepage river selection)
+    if 'ph' in request.args:
+        try:
+            raw_sensors = {
+                "ph": float(request.args.get('ph', 7.0)),
+                "do": float(request.args.get('do', 6.0)),
+                "turbidity": float(request.args.get('turbidity', 5.0)),
+                "temperature": float(request.args.get('temperature', 24.0)),
+                "ec": float(request.args.get('ec', 450.0)),
+                "orp": float(request.args.get('orp', 320.0))
+            }
+            pollutant = request.args.get('pollutant', pollutant)
+        except Exception as e:
+            print(f"Error parsing query parameters in /remediation: {e}")
+    elif latest:
         if latest.get('prediction') and latest['prediction'].get('pollutant') != 'Awaiting Telemetry...':
             pred = latest['prediction']
             pollutant = pred.get('pollutant', pollutant)
