@@ -82,5 +82,44 @@ class VarunaAITestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn('error', data)
 
+    def test_predict_heuristic_override_safe(self):
+        """Test that a perfectly safe water profile receives SAFE_WATER status."""
+        payload = {
+            "ph": 7.0,
+            "do": 6.0,
+            "turbidity": 5.0,
+            "temperature": 24.0,
+            "ec": 450.0,
+            "orp": 320.0
+        }
+        response = self.client.post(
+            '/api/predict',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data.get('status'), 'SAFE_WATER')
+
+    def test_predict_heuristic_override_polluted(self):
+        """Test that failing even one baseline parameter triggers CRITICAL_HAZARD status."""
+        # Failing DO (3.0 is <= 4.5)
+        payload = {
+            "ph": 7.0,
+            "do": 3.0,
+            "turbidity": 5.0,
+            "temperature": 24.0,
+            "ec": 450.0,
+            "orp": 320.0
+        }
+        response = self.client.post(
+            '/api/predict',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data.get('status'), 'CRITICAL_HAZARD')
+
 if __name__ == '__main__':
     unittest.main()

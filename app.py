@@ -146,14 +146,22 @@ VIRTUAL_RIVERS = [
 def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
     """Helper to run the ML model with a Rule-Based Safety Override."""
     
+    # Cast explicitly to float to avoid string comparison errors
+    ph = float(ph)
+    do = float(do)
+    turbidity = float(turbidity)
+    temp = float(temp)
+    ec = float(ec)
+    orp = float(orp)
+    
     # 1. THE ENTERPRISE GUARDRAIL (Heuristic Override)
     # Check if all 6 parameters are strictly within the natural baseline thresholds
     baseline_nominal = (
-        6.5 <= ph <= 8.5 and
-        do > 4.5 and
-        turbidity < 15.0 and
-        ec < 800 and
-        orp > 100
+        (6.5 <= ph <= 8.5) and
+        (do > 4.5) and
+        (turbidity < 15.0) and
+        (ec < 800.0) and
+        (orp > 100.0)
     )
     
     if baseline_nominal:
@@ -163,24 +171,38 @@ def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
         return res
 
     # 2. ML INFERENCE (If baseline is broken, run the AI to classify the pollutant)
-    if not model or not scaler:
-        res = dict(CLASSES.get(0))
-        res["status"] = "SAFE_WATER"
-        return res
-        
-    import pandas as pd
-    features = pd.DataFrame(
-        [[float(ph), float(do), float(turbidity), float(temp)]], 
-        columns=['ph', 'do', 'turbidity', 'temperature']
-    )
-    features_scaled = scaler.transform(features)
-    prediction = model.predict(features_scaled)[0]
-    
-    res = dict(CLASSES.get(int(prediction), CLASSES[0]))
-    if prediction == 0:
-        res["status"] = "SAFE_WATER"
+    prediction = 0
+    if model and scaler:
+        import pandas as pd
+        features = pd.DataFrame(
+            [[ph, do, turbidity, temp]], 
+            columns=['ph', 'do', 'turbidity', 'temperature']
+        )
+        features_scaled = scaler.transform(features)
+        prediction = int(model.predict(features_scaled)[0])
+        # If prediction is 0 (Clean) but baseline is broken, override to a relevant class index to load strategies
+        if prediction == 0:
+            if ph < 6.5 or ph > 8.5:
+                prediction = 1 # Industrial
+            elif do <= 4.5 or orp <= 100:
+                prediction = 2 # Sewage
+            elif turbidity >= 15.0:
+                prediction = 5 # Municipal Solids
+            else:
+                prediction = 1
     else:
-        res["status"] = "CRITICAL_HAZARD"
+        # Fallback heuristic classification when model is unavailable
+        if ph < 6.5 or ph > 8.5:
+            prediction = 1
+        elif do <= 4.5 or orp <= 100:
+            prediction = 2
+        elif turbidity >= 15.0:
+            prediction = 5
+        else:
+            prediction = 1
+        
+    res = dict(CLASSES.get(prediction, CLASSES[1]))
+    res["status"] = "CRITICAL_HAZARD"
     return res
 
 def simulate_network():
@@ -473,13 +495,19 @@ def remediation():
             raw_sensors = latest['raw_sensors']
         
     # Heuristic check for status
-    ph = raw_sensors.get('ph', 7.0)
-    do = raw_sensors.get('do', 6.0)
-    turbidity = raw_sensors.get('turbidity', 5.0)
-    ec = raw_sensors.get('ec', 450.0)
-    orp = raw_sensors.get('orp', 320.0)
+    ph = float(raw_sensors.get('ph', 7.0))
+    do = float(raw_sensors.get('do', 6.0))
+    turbidity = float(raw_sensors.get('turbidity', 5.0))
+    ec = float(raw_sensors.get('ec', 450.0))
+    orp = float(raw_sensors.get('orp', 320.0))
     
-    is_safe = (6.5 <= ph <= 8.5) and (do > 4.5) and (turbidity < 15.0) and (ec < 800) and (orp > 100)
+    is_safe = (
+        (6.5 <= ph <= 8.5) and
+        (do > 4.5) and
+        (turbidity < 15.0) and
+        (ec < 800.0) and
+        (orp > 100.0)
+    )
     status = "SAFE_WATER" if is_safe else "CRITICAL_HAZARD"
     
     # Get strategy key and display name dynamically based on real-time parameters
@@ -516,7 +544,23 @@ def remediation():
         global_2_desc = "No execution steps required."
         pollutant_name_display = "Clean Water / Baseline Condition"
         
+    # Construct the data dictionary required by the Jinja2 template
+    data = {
+        "status": status,
+        "water_is_clean": (status == "SAFE_WATER"),
+        "detected_pollutant": pollutant_name_display,
+        "local_strategy_1_title": local_1_title,
+        "local_strategy_1_desc": local_1_desc,
+        "local_strategy_2_title": local_2_title,
+        "local_strategy_2_desc": local_2_desc,
+        "global_strategy_1_title": global_1_title,
+        "global_strategy_1_desc": global_1_desc,
+        "global_strategy_2_title": global_2_title,
+        "global_strategy_2_desc": global_2_desc
+    }
+        
     return render_template('remediation.html',
+                           data=data,
                            status=status,
                            water_is_clean=(status == "SAFE_WATER"),
                            detected_pollutant=pollutant_name_display,
@@ -563,6 +607,10 @@ def predict():
     global latest_inference
     data = request.json
     try:
+        # Add a debug print statement to log the incoming raw data in the terminal
+        print(f"DEBUG: Incoming raw data from ESP32: {data}")
+        
+        # Explicitly cast to floats to avoid string comparison errors
         ph = float(data.get('ph', 7.0))
         do = float(data.get('do', 6.0))
         turbidity = float(data.get('turbidity', 5.0))
