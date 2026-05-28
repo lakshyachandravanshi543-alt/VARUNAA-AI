@@ -1,0 +1,175 @@
+{
+  "single_parameter_anomalies": {
+    "extreme_acidic_ph": {
+      "trigger_conditions": ["pH < 5.0"],
+      "diagnosis": "Severe acidification, typically caused by acid mine drainage (AMD), metal pickling effluents, or industrial chemical spills.",
+      "local_frugal_action": {
+        "brief": "Construct limestone check-dams and Open Limestone Channels (OLCs).",
+        "how_it_is_done": "1. Procure high-calcium agricultural limestone (CaCO3) crushed to 1-2 inch size. 2. Excavate a series of shallow channels upstream of the detection point. 3. Pack these channels with the crushed limestone, forcing the acidic water to flow through the bed. The limestone dissolves slowly, neutralizing hydrogen ions and elevating the pH back to safe levels (6.5-7.5)."
+      },
+      "industrial_action": {
+        "brief": "Deploy automated liquid sodium hydroxide (NaOH) or hydrated lime dosing skids.",
+        "how_it_is_done": "1. Position a containerized chemical dosing skid equipped with pH feedback loops at the discharge point. 2. Connect high-capacity metering pumps to a storage tank of 20% liquid sodium hydroxide. 3. Configure the PLC to dynamically adjust the pump speed based on downstream pH telemetry, injecting the alkaline neutralizing agent directly into the turbulent flow zone to achieve instant neutralization."
+      },
+      "estimated_recovery_time": "24-48 hours once active neutralization begins."
+    },
+    "extreme_alkaline_ph": {
+      "trigger_conditions": ["pH > 9.0"],
+      "diagnosis": "Severe alkalization, typically caused by concrete washouts, industrial detergent leaks, paper mill effluents, or massive green algal blooms driving carbonate-bicarbonate shifts.",
+      "local_frugal_action": {
+        "brief": "Deploy organic acid buffering using agricultural peat moss and decaying barley straw.",
+        "how_it_is_done": "1. Fill large, permeable mesh bags or burlap sacks with agricultural peat moss or organic straw. 2. Anchor these sacks in a grid pattern across the stream channel. 3. As the organic matter decomposes, it slowly releases humic and fulvic acids, which naturally buffer and lower the high pH towards neutral levels."
+      },
+      "industrial_action": {
+        "brief": "Inject pressurized gaseous carbon dioxide (CO2) or dose dilute sulfuric acid (H2SO4) using feedback loops.",
+        "how_it_is_done": "1. Install a submerged CO2 diffuser grid (carbonation system) in the stream bed. 2. Feed pressurized CO2 gas through the diffusers, creating carbonic acid (H2CO3) in the water column. 3. Use an automated PID controller to scale the CO2 flow rate based on real-time pH telemetry, offering precise, self-limiting neutralization without risking over-acidification."
+      },
+      "estimated_recovery_time": "12-24 hours with continuous CO2 injection."
+    },
+    "critically_low_do": {
+      "trigger_conditions": ["DO < 3.0 mg/L"],
+      "diagnosis": "Severe hypoxia/anoxia, indicating high biochemical oxygen demand (BOD) due to organic waste, agricultural runoff, or stagnant flow conditions.",
+      "local_frugal_action": {
+        "brief": "Construct local stone cascades (riffles) and deploy solar-powered micro-paddle wheel aerators.",
+        "how_it_is_done": "1. Build physical rock riffles and cascades across the stream bed using large local boulders to create turbulence. 2. Position floating bamboo rafts fitted with small 12V DC paddle wheels. 3. Power these paddle wheels using 50W solar panels to continuously splash surface water and maximize atmospheric oxygen transfer."
+      },
+      "industrial_action": {
+        "brief": "Deploy high-pressure micro-nano bubble (MNB) generator systems and liquid oxygen injection skids.",
+        "how_it_is_done": "1. Install submerged venturi-style oxygen diffusers connected to a liquid oxygen (LOX) storage tank on the riverbank. 2. Run high-efficiency micro-nano bubble generators that produce bubbles < 200nm in diameter, which remain suspended in the water column for days. 3. Automatically adjust oxygen flow based on dissolved oxygen sensors to rapidly raise DO levels to > 6.0 mg/L."
+      },
+      "estimated_recovery_time": "24-36 hours under active nanobubble aeration."
+    },
+    "extremely_high_turbidity": {
+      "trigger_conditions": ["Turbidity > 50 NTU"],
+      "diagnosis": "Severe suspended solids loading, typically from soil erosion, heavy storm runoff, construction mud washouts, or industrial clay discharge.",
+      "local_frugal_action": {
+        "brief": "Deploy natural coagulant dosing using Moringa Oleifera seed powder and construct straw-bale check dams.",
+        "how_it_is_done": "1. Grind shelled Moringa Oleifera seeds into a fine powder and mix with water to extract active cationic proteins. 2. Drip this natural coagulant solution upstream of a slow-moving section. 3. Set up physical barrier dams made of straw bales wrapped in coconut coir mesh to trap the flocculated mud and clarify downstream flow."
+      },
+      "industrial_action": {
+        "brief": "Install automated Polyaluminium Chloride (PAC) / Polyacrylamide (PAM) dosing skids and geotextile dewatering tubes.",
+        "how_it_is_done": "1. Place a portable chemical trailer with automated inline turbidimeters upstream. 2. Inject precise quantities of a coagulant (like PAC) to destabilize clay colloids, followed by a flocculant (like anionic PAM) to bind them into heavy flocs. 3. Direct the water through automated sediment separators or geotextile bags to collect and dry the settled sludge."
+      },
+      "estimated_recovery_time": "36-48 hours once flocculant dosing is initiated."
+    },
+    "high_temperature": {
+      "trigger_conditions": ["Temperature > 30.0 °C"],
+      "diagnosis": "Thermal pollution, typically caused by power plant cooling water discharge, industrial manufacturing effluents, or solar radiation on shallow, unshaded concrete channels.",
+      "local_frugal_action": {
+        "brief": "Deploy floating shade covers and create deep thermal refuge pools.",
+        "how_it_is_done": "1. Assemble floating shade nets using UV-stabilized black mesh suspended on bamboo frames across the river surface. 2. Excavate deep pools (1.5 - 2 meters depth) in the river bed where cooler water naturally settles due to stratification. 3. Anchor willow and vetiver root systems along the banks to provide natural vegetative shading."
+      },
+      "industrial_action": {
+        "brief": "Install multi-stage wet cooling towers or redirect warm discharge to industrial spray ponds.",
+        "how_it_is_done": "1. Redirect warm industrial effluent through a series of atmospheric spray nozzles over a dedicated cooling pond. 2. Force air counter-currently through vertical cooling tower packing to maximize evaporative heat loss. 3. Only release the cooled water back into the river system when its temperature matches the ambient baseline within 1°C."
+      },
+      "estimated_recovery_time": "48-72 hours depending on ambient wind speed and volume."
+    },
+    "high_ec": {
+      "trigger_conditions": ["EC > 1200 µS/cm"],
+      "diagnosis": "Severe ionic pollution, indicating dissolved heavy metals, chemical salts, agricultural fertilizer spikes, or industrial pickling acid discharge.",
+      "local_frugal_action": {
+        "brief": "Construct Permeable Reactive Barriers (PRBs) using activated bio-char and zeolites.",
+        "how_it_is_done": "1. Dig a trench perpendicular to the river flow path or construct a channel bottleneck. 2. Pack the trench with a 60:40 mixture of granular activated bio-char (made from local agricultural waste) and natural zeolite clay. 3. The high cation-exchange capacity of the zeolites and the porous surface of bio-char will chemically bind and adsorb the dissolved metal cations."
+      },
+      "industrial_action": {
+        "brief": "Deploy mobile containerized Reverse Osmosis (RO) or Ion Exchange (IX) resin filtration systems.",
+        "how_it_is_done": "1. Bypass a portion of the contaminated flow through a mobile trailer containing multi-media sand filters. 2. Pump the water through selective chelating ion-exchange resin columns configured to target heavy metals (like Lead, Copper, Zinc). 3. For high-salinity zones, pass the permeate through brackish-water reverse osmosis (BWRO) membranes to strip all dissolved salts."
+      },
+      "estimated_recovery_time": "5-7 days under continuous filtration."
+    },
+    "highly_negative_orp": {
+      "trigger_conditions": ["ORP < -150 mV"],
+      "diagnosis": "Severe anaerobic conditions, indicating active septic decomposition, raw sewage discharge, or organic waste dump depleting oxygen and producing toxic hydrogen sulfide.",
+      "local_frugal_action": {
+        "brief": "Dose calcium nitrate and deploy floating micro-ecologies (artificial active wetlands).",
+        "how_it_is_done": "1. Dissolve agricultural calcium nitrate [Ca(NO3)2] in water and drip it into the stream. The nitrate acts as an alternative electron acceptor, stopping sulfate-reducing bacteria from producing H2S gas. 2. Construct floating bamboo rafts planted with Vetiver Grass, Canna Indica, and Typha. The root zones will leak oxygen and provide colonization sites for aerobic microbes."
+      },
+      "industrial_action": {
+        "brief": "Inject hydrogen peroxide (H2O2) or ozone, and dose concentrated aerobic bacterial inoculants.",
+        "how_it_is_done": "1. Position an automated chemical oxidizer skid on the riverbank. 2. Inject 35% industrial-grade hydrogen peroxide directly into the stream flow via static mixers to instantly raise the ORP from negative to positive (> +100mV). 3. Continuously dose a specialized consortium of aerobic Bacillus and Pseudomonas strains to rapidly consume the organic carbon."
+      },
+      "estimated_recovery_time": "48-72 hours with continuous chemical oxidation."
+    }
+  },
+  "combinatorial_anomalies": {
+    "combo_1_raw_municipal_sewage": {
+      "trigger_conditions": ["DO < 3.0 mg/L", "ORP < -100 mV", "Turbidity > 40 NTU"],
+      "diagnosis": "Severe organic loading and fecal contamination caused by raw, untreated municipal sewage discharge.",
+      "local_frugal_action": {
+        "brief": "Construct floating straw/bamboo baffles, dose calcium nitrate, and deploy solar surface aerators.",
+        "how_it_is_done": "1. Install diagonal floating bamboo barriers stuffed with straw across the river to trap solid waste and macro-debris. 2. Drip calcium nitrate upstream to prevent anaerobic odor and H2S formation. 3. Deploy floating solar-powered mechanical paddle-wheels in the quiet zones to inject atmospheric oxygen and stimulate natural biodegradation."
+      },
+      "industrial_action": {
+        "brief": "Deploy mobile chemical coagulation (PAC), high-volume liquid oxygen injection, and nitrifying bacterial bio-augmentation.",
+        "how_it_is_done": "1. Deploy automated chemical barges upstream to inject Polyaluminium Chloride (PAC) for rapid coagulation and settling of sewage solids. 2. Deploy a grid of submerged diffused fine-bubble aerators connected to bankside rotary screw compressors supplying pure oxygen. 3. Continuous injection of bio-augmented nitrifying bacterial strains to reduce high ammonia and biological oxygen demand (BOD) loads."
+      },
+      "estimated_recovery_time": "48-72 hours with active chemical/biological dosing."
+    },
+    "combo_2_industrial_acid_wash_spill": {
+      "trigger_conditions": ["pH < 4.5", "EC > 1200 µS/cm", "ORP > 400 mV"],
+      "diagnosis": "Industrial acid wash spill, likely involving sulfuric, hydrochloric, or nitric acid combined with dissolved metals and oxidizers.",
+      "local_frugal_action": {
+        "brief": "Dose soda ash/lime slurry and construct downstream bio-char traps.",
+        "how_it_is_done": "1. Mix agricultural hydrated lime [Ca(OH)2] or soda ash [Na2CO3] with water in local drums to create a slurry. 2. Gravity-feed the slurry into the river channel using a slow-drip siphon upstream. 3. Build a temporary check dam packed with bio-char down-river to adsorb neutralized metal precipitates before they flow further."
+      },
+      "industrial_action": {
+        "brief": "Deploy automated caustic soda dosing skids and downstream electroflocculation systems.",
+        "how_it_is_done": "1. Set up an automated containerized pH-neutralization skid that monitors downstream pH. 2. Pump 25% Sodium Hydroxide (NaOH) via PLC-controlled metering pumps directly into the spill zone. 3. Run inline electrocoagulation systems downstream to force heavy metals to aggregate and settle out of the stream bed."
+      },
+      "estimated_recovery_time": "12-24 hours for pH normalization; 48-72 hours for metal settlement."
+    },
+    "combo_3_agricultural_fertilizer_runoff": {
+      "trigger_conditions": ["EC > 1000 µS/cm", "Turbidity > 30 NTU", "DO < 4.0 mg/L"],
+      "diagnosis": "Eutrophic runoff containing high concentrations of nitrates/phosphates alongside organic silts from agricultural soil washouts.",
+      "local_frugal_action": {
+        "brief": "Deploy floating wetland islands (reed beds) and introduce barley straw barriers.",
+        "how_it_is_done": "1. Construct floating rafts using PVC pipes or bamboo, and cover them with coconut-fiber mats. 2. Plant local wetland macrophytes (like Phragmites and Vetiver) whose roots absorb nitrates and phosphates directly. 3. Anchor barley straw bales upstream; as they decompose in the sun, they release compounds that naturally inhibit algae growth."
+      },
+      "industrial_action": {
+        "brief": "Apply lanthanum-modified bentonite clay (Phoslock) and deploy ultrasonic algal cell lysis boats.",
+        "how_it_is_done": "1. Disperse lanthanum-modified bentonite clay (Phoslock) over the water surface using specialized slurry pumps; the clay binds dissolved orthophosphates, locking them in the sediments. 2. Deploy solar-powered autonomous boats equipped with multi-frequency ultrasonic transducers to collapse algal gas vesicles. 3. Run high-efficiency aerators to prevent hypoxia during algal decay."
+      },
+      "estimated_recovery_time": "4-6 days for nutrient depletion and algal stabilization."
+    },
+    "combo_4_power_plant_thermal_discharge": {
+      "trigger_conditions": ["Temperature > 30.0 °C", "DO < 4.0 mg/L"],
+      "diagnosis": "Thermal discharge from industrial cooling systems or power plants, which drastically reduces the solubility of oxygen in water.",
+      "local_frugal_action": {
+        "brief": "Install shade structures, create riffle zones, and plant riparian trees.",
+        "how_it_is_done": "1. Erect overhead shade structures across narrow channels using commercial agricultural shade cloths. 2. Construct steep stone riffle sections down-stream of the hot water outlet to force turbulent mixing with cooler ambient air. 3. Plant fast-growing shade trees (like Populus or Salix) on the banks to create a natural canopy."
+      },
+      "industrial_action": {
+        "brief": "Deploy forced-draft cooling cascades and inline vacuum degasifiers.",
+        "how_it_is_done": "1. Redirect the thermal effluent over a series of vertical spray cooling towers with forced-draft fans to strip heat. 2. Pass the water through high-flow cooling cascades before it hits the river. 3. Inject oxygen using micro-bubble grids directly at the cooler discharge outlet to force-saturate the oxygen levels up to 8.0 mg/L."
+      },
+      "estimated_recovery_time": "24-48 hours once cooling and aeration loops are active."
+    },
+    "combo_5_massive_heavy_metal_mining_leak": {
+      "trigger_conditions": ["EC > 1500 µS/cm", "pH < 4.5", "Turbidity < 15 NTU"],
+      "diagnosis": "Acid mine drainage (AMD) or a mining tailing leak containing highly soluble metal sulfates (e.g., iron, copper, aluminum) in an acidic solution.",
+      "local_frugal_action": {
+        "brief": "Construct successive alkalinity-producing systems (SAPS) and compost-limestone wetlands.",
+        "how_it_is_done": "1. Dig a series of sequential ponds upstream. 2. Layer the bottom with 6 inches of crushed limestone, covered by 6 inches of organic compost/manure. 3. Run the acidic, metal-rich water through these anaerobic layers; sulfate-reducing bacteria in the compost raise the pH, and limestone neutralizes the acid, precipitating metals inside the compost."
+      },
+      "industrial_action": {
+        "brief": "Install automated lime-slurry neutralization systems, chemical precipitation clarifiers, and ultrafiltration.",
+        "how_it_is_done": "1. Dose hydrated lime slurry Ca(OH)2 automatically to raise the pH to exactly 8.5, which is the optimum point for precipitating heavy metals as hydroxides. 2. Inject anionic polymer flocculants to form large metal-hydroxide flocs. 3. Route the flow through high-rate inclined plate lamella clarifiers to continuously separate the heavy metal sludge."
+      },
+      "estimated_recovery_time": "5-7 days under continuous industrial clarification."
+    },
+    "combo_6_dead_zone_eutrophication": {
+      "trigger_conditions": ["DO < 1.0 mg/L", "Temperature > 28.0 °C", "ORP < -100 mV", "Turbidity > 35 NTU"],
+      "diagnosis": "A highly advanced ecological dead zone caused by catastrophic eutrophication, stagnant warm water, and massive bacterial decay of biomass.",
+      "local_frugal_action": {
+        "brief": "Deploy multiple mechanical splash aerators, harvest biomass, and dose calcium nitrate.",
+        "how_it_is_done": "1. Mobilize local community members to physically drag and harvest floating algal mats and organic debris. 2. Install multiple floating solar splash aerators and run them 24/7. 3. Broad-cast calcium nitrate chemical buffers across the surface to stop the production of toxic, foul-smelling hydrogen sulfide gas."
+      },
+      "industrial_action": {
+        "brief": "Deploy high-capacity Nanobubble oxygen barges, inject concentrated hydrogen peroxide, and apply bio-augmentation.",
+        "how_it_is_done": "1. Dispatch specialized aeration barges equipped with high-throughput micro-nano bubble generators supplying pure oxygen gas (>90% concentration). 2. Inject dilute hydrogen peroxide (H2O2) at strategic upstream points to chemically break down anaerobic organics and raise ORP immediately. 3. Continuous dosing of nitrifying and carbon-consuming Bacillus spores to digest the decayed biomass and clear the water column."
+      },
+      "estimated_recovery_time": "7-10 days under intense combined aeration and biological treatment."
+    }
+  }
+}
