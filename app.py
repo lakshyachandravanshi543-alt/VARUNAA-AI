@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import joblib
 import os
+import json
 import threading
 import time
 import random
@@ -367,6 +368,77 @@ REMEDIATION_STRATEGIES = {
     }
 }
 
+# Load remediation matrix from JSON
+remediation_matrix_path = os.path.join(os.path.dirname(__file__), 'remediation_matrix.json')
+remediation_matrix = {}
+if os.path.exists(remediation_matrix_path):
+    try:
+        with open(remediation_matrix_path, 'r', encoding='utf-8') as f:
+            remediation_matrix = json.load(f)
+    except Exception as e:
+        print(f"Error loading remediation_matrix.json: {e}")
+
+def get_remediation_strategy_key(raw_sensors, pollutant):
+    # Check for combinatorial anomalies first
+    ph = raw_sensors.get('ph', 7.0)
+    do = raw_sensors.get('do', 6.0)
+    turbidity = raw_sensors.get('turbidity', 5.0)
+    temp = raw_sensors.get('temperature', 24.0)
+    ec = raw_sensors.get('ec', 450.0)
+    orp = raw_sensors.get('orp', 320.0)
+    
+    # 1. Dead Zone / Eutrophication: Zero DO + High Temp + Negative ORP + High Turbidity
+    if do < 1.0 and temp > 28.0 and orp < -100 and turbidity > 35:
+        return "combo_6_dead_zone_eutrophication", "Dead Zone & Eutrophication (Combinatorial Alert)"
+        
+    # 2. Massive Heavy Metal/Mining Leak: Extremely High EC + Low pH + Low Turbidity
+    if ec > 1500 and ph < 4.5 and turbidity < 15:
+        return "combo_5_massive_heavy_metal_mining_leak", "Massive Heavy Metal & Mining Leak (Combinatorial Alert)"
+        
+    # 3. Power Plant Thermal Discharge: High Temp + Low DO
+    if temp > 30.0 and do < 4.0:
+        return "combo_4_power_plant_thermal_discharge", "Power Plant Thermal Discharge (Combinatorial Alert)"
+        
+    # 4. Agricultural Fertilizer Runoff: High EC + High Turbidity + Low DO
+    if ec > 1000 and turbidity > 30 and do < 4.0:
+        return "combo_3_agricultural_fertilizer_runoff", "Agricultural Fertilizer Runoff (Combinatorial Alert)"
+        
+    # 5. Industrial Acid Wash Spill: Low pH + High EC + High ORP
+    if ph < 4.5 and ec > 1200 and orp > 400:
+        return "combo_2_industrial_acid_wash_spill", "Industrial Acid Wash Spill (Combinatorial Alert)"
+        
+    # 6. Raw Municipal Sewage: Low DO + Negative ORP + High Turbidity
+    if do < 3.0 and orp < -100 and turbidity > 40:
+        return "combo_1_raw_municipal_sewage", "Raw Municipal Sewage Spill (Combinatorial Alert)"
+        
+    # Check for single parameter anomalies
+    if ph < 5.0:
+        return "extreme_acidic_ph", "Extreme Acidic pH Anomaly"
+    if ph > 9.0:
+        return "extreme_alkaline_ph", "Extreme Alkaline pH Anomaly"
+    if do < 3.0:
+        return "critically_low_do", "Critically Low Dissolved Oxygen"
+    if turbidity > 50:
+        return "extremely_high_turbidity", "Extremely High Turbidity"
+    if temp > 30.0:
+        return "high_temperature", "Thermal Pollution Alert"
+    if ec > 1200:
+        return "high_ec", "High Electrical Conductivity (Ionic Loading)"
+    if orp < -150:
+        return "highly_negative_orp", "Highly Negative ORP (Septic Conditions)"
+        
+    # Fallback to overall predicted pollutant class
+    mapping = {
+        "Clean Water / Baseline Condition": ("clean_water", "Clean Water / Baseline Condition"),
+        "Natural Mud Runoff (Rain Induced)": ("natural_mud_runoff", "Natural Mud Runoff (Rain Induced)"),
+        "Industrial Heavy Metal Bioaccumulation": ("combo_5_massive_heavy_metal_mining_leak", "Industrial Heavy Metal Bioaccumulation"),
+        "Untreated Organic Sewage & Pathogens": ("combo_1_raw_municipal_sewage", "Untreated Organic Sewage & Pathogens"),
+        "Petrochemical Hydrocarbon Slick": ("highly_negative_orp", "Petrochemical Hydrocarbon Slick"),
+        "Agricultural Eutrophication Runoff": ("combo_3_agricultural_fertilizer_runoff", "Agricultural Eutrophication Runoff"),
+        "Municipal Plastic & Suspended Solids": ("extremely_high_turbidity", "Municipal Plastic & Suspended Solids")
+    }
+    return mapping.get(pollutant, ("clean_water", pollutant))
+
 @app.route('/')
 def index():
     return render_template('index.html',
@@ -381,27 +453,63 @@ def remediation():
         latest = latest_inference
         
     pollutant = "Industrial Heavy Metal Bioaccumulation"  # default fallback
-    if latest and latest.get('prediction') and latest['prediction'].get('pollutant') != 'Awaiting Telemetry...':
-        pred = latest['prediction']
-        pollutant = pred.get('pollutant', pollutant)
+    raw_sensors = {"ph": 7.2, "do": 6.5, "turbidity": 5.0, "temperature": 24.0, "ec": 450.0, "orp": 320.0}
+    if latest:
+        if latest.get('prediction') and latest['prediction'].get('pollutant') != 'Awaiting Telemetry...':
+            pred = latest['prediction']
+            pollutant = pred.get('pollutant', pollutant)
+        if latest.get('raw_sensors'):
+            raw_sensors = latest['raw_sensors']
         
-    # Get strategies matching this pollutant
-    strategies = REMEDIATION_STRATEGIES.get(pollutant, REMEDIATION_STRATEGIES["Industrial Heavy Metal Bioaccumulation"])
+    # Get strategy key and display name dynamically based on real-time parameters
+    key, display_name = get_remediation_strategy_key(raw_sensors, pollutant)
     
+    # Try loading from the JSON matrix
+    strategy = None
+    if remediation_matrix:
+        strategy = remediation_matrix.get("single_parameter_anomalies", {}).get(key)
+        if not strategy:
+            strategy = remediation_matrix.get("combinatorial_anomalies", {}).get(key)
+            
+    if strategy:
+        local_1_title = "Immediate Action Protocol"
+        local_1_desc = strategy["local_frugal_action"]["brief"]
+        local_2_title = "Execution Plan"
+        local_2_desc = strategy["local_frugal_action"]["how_it_is_done"]
+        
+        global_1_title = "Industrial Technology Protocol"
+        global_1_desc = strategy["industrial_action"]["brief"]
+        global_2_title = "Execution Plan"
+        global_2_desc = strategy["industrial_action"]["how_it_is_done"]
+        
+        pollutant_name_display = display_name
+    else:
+        # Fallback to hardcoded REMEDIATION_STRATEGIES
+        strategies = REMEDIATION_STRATEGIES.get(pollutant, REMEDIATION_STRATEGIES["Industrial Heavy Metal Bioaccumulation"])
+        local_1_title = strategies["local_1_title"]
+        local_1_desc = strategies["local_1_desc"]
+        local_2_title = strategies["local_2_title"]
+        local_2_desc = strategies["local_2_desc"]
+        global_1_title = strategies["global_1_title"]
+        global_1_desc = strategies["global_1_desc"]
+        global_2_title = strategies["global_2_title"]
+        global_2_desc = strategies["global_2_desc"]
+        pollutant_name_display = pollutant
+        
     # Is water clean?
     water_is_clean = (pollutant in ["Clean Water / Baseline Condition", "Natural Mud Runoff (Rain Induced)"])
     
     return render_template('remediation.html',
                            water_is_clean=water_is_clean,
-                           detected_pollutant=pollutant,
-                           local_strategy_1_title=strategies["local_1_title"],
-                           local_strategy_1_desc=strategies["local_1_desc"],
-                           local_strategy_2_title=strategies["local_2_title"],
-                           local_strategy_2_desc=strategies["local_2_desc"],
-                           global_strategy_1_title=strategies["global_1_title"],
-                           global_strategy_1_desc=strategies["global_1_desc"],
-                           global_strategy_2_title=strategies["global_2_title"],
-                           global_strategy_2_desc=strategies["global_2_desc"])
+                           detected_pollutant=pollutant_name_display,
+                           local_strategy_1_title=local_1_title,
+                           local_strategy_1_desc=local_1_desc,
+                           local_strategy_2_title=local_2_title,
+                           local_strategy_2_desc=local_2_desc,
+                           global_strategy_1_title=global_1_title,
+                           global_strategy_1_desc=global_1_desc,
+                           global_strategy_2_title=global_2_title,
+                           global_strategy_2_desc=global_2_desc)
 
 @app.route('/hardware')
 def hardware():
