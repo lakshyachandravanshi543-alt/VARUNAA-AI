@@ -143,24 +143,30 @@ VIRTUAL_RIVERS = [
     }
 ]
 
-def run_inference(ph, do, turbidity, temp):
+def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
     """Helper to run the ML model with a Rule-Based Safety Override."""
     
     # 1. THE ENTERPRISE GUARDRAIL (Heuristic Override)
-    # Check if parameters are strictly within the natural baseline thresholds
-    baseline_nominal = True
-    
-    if not (6.5 <= ph <= 8.5): baseline_nominal = False
-    if not (do >= 4.0): baseline_nominal = False
-    if not (turbidity <= 15.0): baseline_nominal = False
+    # Check if all 6 parameters are strictly within the natural baseline thresholds
+    baseline_nominal = (
+        6.5 <= ph <= 8.5 and
+        do > 4.5 and
+        turbidity < 15.0 and
+        ec < 800 and
+        orp > 100
+    )
     
     if baseline_nominal:
-        # Directly return CLASS 0 ("Clean Water / Baseline Condition") which is Green/Safe
-        return CLASSES.get(0)
+        # Directly return CLASS 0 ("Clean Water / Baseline Condition") which is Green/Safe with status SAFE_WATER
+        res = dict(CLASSES.get(0))
+        res["status"] = "SAFE_WATER"
+        return res
 
     # 2. ML INFERENCE (If baseline is broken, run the AI to classify the pollutant)
     if not model or not scaler:
-        return CLASSES.get(0) 
+        res = dict(CLASSES.get(0))
+        res["status"] = "SAFE_WATER"
+        return res
         
     import pandas as pd
     features = pd.DataFrame(
@@ -170,7 +176,12 @@ def run_inference(ph, do, turbidity, temp):
     features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)[0]
     
-    return CLASSES.get(int(prediction), CLASSES[0])
+    res = dict(CLASSES.get(int(prediction), CLASSES[0]))
+    if prediction == 0:
+        res["status"] = "SAFE_WATER"
+    else:
+        res["status"] = "CRITICAL_HAZARD"
+    return res
 
 def simulate_network():
     """Background thread simulating live sensor data for the virtual rivers."""
@@ -218,7 +229,7 @@ def simulate_network():
                 w_temp = round(random.uniform(25.0, 31.0), 1)
                 w_msg = "Optimal solar irradiance. Buoy charging rates stable."
             
-            prediction = run_inference(ph, do, turb, temp)
+            prediction = run_inference(ph, do, turb, temp, ec, orp)
             
             # Weather Override
             if weather_state == 'Heavy Rainfall' and prediction['color'] in ['orange', 'blue']:
@@ -269,7 +280,7 @@ def init_network_state():
         ec = round(random.uniform(*rv['base_ec']), 1)
         orp = round(random.uniform(*rv['base_orp']), 1)
         
-        prediction = run_inference(ph, do, turb, temp)
+        prediction = run_inference(ph, do, turb, temp, ec, orp)
         w_temp = 24.5
         w_status = "Cloudy"
         w_msg = "Standard atmospheric pressures, baselines nominal."
@@ -461,17 +472,27 @@ def remediation():
         if latest.get('raw_sensors'):
             raw_sensors = latest['raw_sensors']
         
+    # Heuristic check for status
+    ph = raw_sensors.get('ph', 7.0)
+    do = raw_sensors.get('do', 6.0)
+    turbidity = raw_sensors.get('turbidity', 5.0)
+    ec = raw_sensors.get('ec', 450.0)
+    orp = raw_sensors.get('orp', 320.0)
+    
+    is_safe = (6.5 <= ph <= 8.5) and (do > 4.5) and (turbidity < 15.0) and (ec < 800) and (orp > 100)
+    status = "SAFE_WATER" if is_safe else "CRITICAL_HAZARD"
+    
     # Get strategy key and display name dynamically based on real-time parameters
     key, display_name = get_remediation_strategy_key(raw_sensors, pollutant)
     
     # Try loading from the JSON matrix
     strategy = None
-    if remediation_matrix:
+    if status == "CRITICAL_HAZARD" and remediation_matrix:
         strategy = remediation_matrix.get("single_parameter_anomalies", {}).get(key)
         if not strategy:
             strategy = remediation_matrix.get("combinatorial_anomalies", {}).get(key)
             
-    if strategy:
+    if status == "CRITICAL_HAZARD" and strategy:
         local_1_title = "Immediate Action Protocol"
         local_1_desc = strategy["local_frugal_action"]["brief"]
         local_2_title = "Execution Plan"
@@ -484,23 +505,20 @@ def remediation():
         
         pollutant_name_display = display_name
     else:
-        # Fallback to hardcoded REMEDIATION_STRATEGIES
-        strategies = REMEDIATION_STRATEGIES.get(pollutant, REMEDIATION_STRATEGIES["Industrial Heavy Metal Bioaccumulation"])
-        local_1_title = strategies["local_1_title"]
-        local_1_desc = strategies["local_1_desc"]
-        local_2_title = strategies["local_2_title"]
-        local_2_desc = strategies["local_2_desc"]
-        global_1_title = strategies["global_1_title"]
-        global_1_desc = strategies["global_1_desc"]
-        global_2_title = strategies["global_2_title"]
-        global_2_desc = strategies["global_2_desc"]
-        pollutant_name_display = pollutant
+        # Fallback/Clean water values
+        local_1_title = "N/A"
+        local_1_desc = "No active remediation needed."
+        local_2_title = "N/A"
+        local_2_desc = "No execution steps required."
+        global_1_title = "N/A"
+        global_1_desc = "No active remediation needed."
+        global_2_title = "N/A"
+        global_2_desc = "No execution steps required."
+        pollutant_name_display = "Clean Water / Baseline Condition"
         
-    # Is water clean?
-    water_is_clean = (pollutant in ["Clean Water / Baseline Condition", "Natural Mud Runoff (Rain Induced)"])
-    
     return render_template('remediation.html',
-                           water_is_clean=water_is_clean,
+                           status=status,
+                           water_is_clean=(status == "SAFE_WATER"),
                            detected_pollutant=pollutant_name_display,
                            local_strategy_1_title=local_1_title,
                            local_strategy_1_desc=local_1_desc,
@@ -552,7 +570,7 @@ def predict():
         ec = float(data.get('ec', 450.0))
         orp = float(data.get('orp', 320.0))
         
-        result_payload = run_inference(ph, do, turbidity, temperature)
+        result_payload = run_inference(ph, do, turbidity, temperature, ec, orp)
         
         # Calculate dynamic SHAP / confidence weights based on custom inputs
         # (Since we query custom inputs, we adjust confidence and SHAP representation accordingly)
