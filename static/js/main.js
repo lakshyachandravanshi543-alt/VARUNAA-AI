@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }).addTo(map);
 
     let markers = {};
+    let fetchFailures = 0;      // F1: consecutive failure counter
+    let skeletonHidden = false; // F1: ensure we only hide skeleton once
     const riverCoords = {
         ganga: [25.3176, 82.9739],     // India
         yamuna: [28.6139, 77.2090],    // India
@@ -81,19 +83,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function updateMapMarkers() {
+        const skeletonEl = document.getElementById('skeleton-loader');
+        const errorEl    = document.getElementById('fetch-error');
         try {
             const response = await fetch('/api/network_state');
             if (response.ok) {
                 const data = await response.json();
+
+                // F1: First successful response — hide skeleton, show map
+                if (!skeletonHidden && skeletonEl) {
+                    skeletonEl.style.display = 'none';
+                    skeletonHidden = true;
+                }
+                // F1: Recovery — hide error banner
+                if (errorEl) errorEl.style.display = 'none';
+                fetchFailures = 0;
+
                 data.forEach(river => {
                     if (markers[river.id]) {
                         markers[river.id].setIcon(getMarkerIcon(river.prediction.color));
                         markers[river.id].bindTooltip(`<b>${river.name}</b><br>AI Verdict: ${river.prediction.pollutant}`, { direction: 'top' });
                     }
                 });
+            } else {
+                throw new Error('Non-OK response');
             }
         } catch (e) {
             console.error("Failed to update map markers", e);
+            fetchFailures++;
+            // F1: Show error banner after 3 consecutive failures
+            if (fetchFailures >= 3 && errorEl) {
+                errorEl.style.display = 'block';
+            }
         }
     }
 
@@ -305,7 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // POST to /api/predict to update server-side latest_inference state in background
                 fetch('/api/predict', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'varuna-prod-key-change-this-immediately'
+                    },
                     body: JSON.stringify({
                         ph: parseFloat(selectedRiver.raw_sensors.ph),
                         do: parseFloat(selectedRiver.raw_sensors.do),

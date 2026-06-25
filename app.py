@@ -5,6 +5,18 @@ import json
 import threading
 import time
 import random
+import hmac
+import hashlib
+import numpy as np
+import shap
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.getenv("VARUNA_API_KEY", "dev-insecure-fallback")
+
+AUDIT_LOG_PATH = Path("logs/audit.jsonl")
+AUDIT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
 
@@ -12,9 +24,13 @@ app = Flask(__name__)
 model_path = os.path.join(os.path.dirname(__file__), 'model', 'model.joblib')
 scaler_path = os.path.join(os.path.dirname(__file__), 'model', 'scaler.joblib')
 
+_shap_explainer = None
+
 if os.path.exists(model_path) and os.path.exists(scaler_path):
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
+    if model is not None:
+        _shap_explainer = shap.TreeExplainer(model)
 else:
     model = None
     scaler = None
@@ -33,7 +49,7 @@ latest_inference = {
         "shap": ["System initialized (+100% impact)"]
     }
 }
-lock = threading.Lock()
+lock = threading.RLock()
 
 # Highly detailed pollution mappings shared across all instances
 CLASSES = {
@@ -113,7 +129,7 @@ CLASSES = {
 
 # --- VIRTUAL RIVER NETWORK ---
 network_state = []
-network_lock = threading.Lock()
+network_lock = threading.RLock()
 
 VIRTUAL_RIVERS = [
     {
@@ -143,6 +159,149 @@ VIRTUAL_RIVERS = [
     }
 ]
 
+def compute_river_health_score(ph, do, turbidity, temp, ec, orp):
+    """
+    Computes the Varuna River Health Score (0-100).
+    Higher = healthier. Based on weighted deviation
+    from WHO/CPCB optimal freshwater baselines.
+
+    Scoring weights (must sum to 1.0):
+      DO:         0.30  (most critical for aquatic life)
+      pH:         0.20  (chemical stability)
+      Turbidity:  0.20  (physical clarity)
+      ORP:        0.15  (oxidation/septic indicator)
+      EC:         0.10  (dissolved solids load)
+      Temp:       0.05  (thermal stress)
+    """
+    scores = {}
+
+    # DO score: optimal 6-9 mg/L
+    if do >= 6.0:
+        scores['do'] = 100
+    elif do >= 4.0:
+        scores['do'] = 60 + (do - 4.0) * 20
+    elif do >= 2.0:
+        scores['do'] = 20 + (do - 2.0) * 20
+    else:
+        scores['do'] = max(0, do * 10)
+
+    # pH score: optimal 6.5-8.5
+    ph_dev = min(
+        abs(ph - 6.5), abs(ph - 8.5)
+    ) if (ph < 6.5 or ph > 8.5) else 0
+    scores['ph'] = max(0, 100 - ph_dev * 20)
+
+    # Turbidity score: optimal < 10 NTU
+    if turbidity <= 10:
+        scores['turbidity'] = 100
+    elif turbidity <= 50:
+        scores['turbidity'] = 100 - (
+            (turbidity - 10) * 1.5
+        )
+    else:
+        scores['turbidity'] = max(
+            0, 40 - (turbidity - 50) * 0.3
+        )
+
+    # ORP score: optimal 200-400 mV
+    if 200 <= orp <= 400:
+        scores['orp'] = 100
+    elif orp >= 0:
+        scores['orp'] = 50 + orp * 0.25
+    else:
+        scores['orp'] = max(0, 50 + orp * 0.2)
+
+    # EC score: optimal < 500 µS/cm
+    if ec <= 500:
+        scores['ec'] = 100
+    elif ec <= 1000:
+        scores['ec'] = 100 - (ec - 500) * 0.1
+    else:
+        scores['ec'] = max(0, 50 - (
+            ec - 1000
+        ) * 0.05)
+
+    # Temp score: optimal 15-25°C
+    temp_dev = max(
+        0, temp - 25
+    ) if temp > 25 else max(0, 15 - temp)
+    scores['temp'] = max(0, 100 - temp_dev * 5)
+
+    weights = {
+        'do': 0.30, 'ph': 0.20,
+        'turbidity': 0.20, 'orp': 0.15,
+        'ec': 0.10, 'temp': 0.05
+    }
+
+    final_score = sum(
+        scores[k] * weights[k]
+        for k in weights
+    )
+
+    return {
+        "score": round(final_score, 1),
+        "grade": (
+            "Excellent" if final_score >= 80
+            else "Good" if final_score >= 60
+            else "Fair" if final_score >= 40
+            else "Poor" if final_score >= 20
+            else "Critical"
+        ),
+        "component_scores": {
+            k: round(v, 1)
+            for k, v in scores.items()
+        }
+    }
+
+
+def sign_and_log(ph, do, turbidity, temperature, ec, orp, prediction):
+    """
+    Creates HMAC-SHA256 signature of sensor payload
+    and appends to tamper-evident audit log.
+    Returns timestamp and signature for API response.
+    """
+    ts = str(int(time.time()))
+    payload_str = (
+        f"{ph}|{do}|{turbidity}|"
+        f"{temperature}|{ec}|{orp}|{ts}"
+    )
+    sig = hmac.new(
+        API_KEY.encode(),
+        payload_str.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    log_entry = {
+        "timestamp_unix": ts,
+        "timestamp_iso": time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ", time.gmtime()
+        ),
+        "sensors": {
+            "ph": ph, "do": do,
+            "turbidity": turbidity,
+            "temperature": temperature,
+            "ec": ec, "orp": orp
+        },
+        "classification": prediction.get(
+            "pollutant", "Unknown"
+        ),
+        "confidence": prediction.get(
+            "confidence", 0
+        ),
+        "hmac_sha256": sig
+    }
+    try:
+        with open(
+            AUDIT_LOG_PATH, "a",
+            encoding="utf-8"
+        ) as f:
+            f.write(json.dumps(log_entry) + "\n")
+    except Exception as log_err:
+        print(f"AUDIT LOG ERROR: {log_err}")
+
+    return ts, sig
+
+
 def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
     """Helper to run the ML model with a Rule-Based Safety Override."""
     
@@ -168,6 +327,12 @@ def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
         # Directly return CLASS 0 ("Clean Water / Baseline Condition") which is Green/Safe with status SAFE_WATER
         res = dict(CLASSES.get(0))
         res["status"] = "SAFE_WATER"
+        health = compute_river_health_score(
+            ph, do, turbidity, temp, ec, orp
+        )
+        res['river_health_score'] = health['score']
+        res['river_health_grade'] = health['grade']
+        res['health_components'] = health['component_scores']
         return res
 
     # 2. ML INFERENCE (If baseline is broken, run the AI to classify the pollutant)
@@ -175,11 +340,42 @@ def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
     if model and scaler:
         import pandas as pd
         features = pd.DataFrame(
-            [[ph, do, turbidity, temp]], 
-            columns=['ph', 'do', 'turbidity', 'temperature']
+            [[ph, do, turbidity, temp, ec, orp]],
+            columns=['ph', 'do', 'turbidity', 'temperature',
+                     'ec', 'orp']
         )
         features_scaled = scaler.transform(features)
         prediction = int(model.predict(features_scaled)[0])
+
+        real_shap = []
+        try:
+            if _shap_explainer is not None:
+                sv = _shap_explainer.shap_values(
+                    features_scaled
+                )
+                if isinstance(sv, list):
+                    class_shap = sv[prediction][0]
+                else:
+                    class_shap = sv[0]
+                feature_names = [
+                    'ph', 'do', 'turbidity',
+                    'temperature', 'ec', 'orp'
+                ]
+                pairs = sorted(
+                    zip(feature_names, class_shap),
+                    key=lambda x: abs(x[1]),
+                    reverse=True
+                )[:3]
+                real_shap = [
+                    f"{n.upper()} "
+                    f"({'+' if v > 0 else ''}"
+                    f"{v * 100:.1f}% model impact)"
+                    for n, v in pairs
+                ]
+        except Exception as shap_err:
+            real_shap = [
+                f"SHAP unavailable: {str(shap_err)}"
+            ]
         # If prediction is 0 (Clean) but baseline is broken, override to a relevant class index to load strategies
         if prediction == 0:
             if ph < 6.5 or ph > 8.5:
@@ -203,6 +399,15 @@ def run_inference(ph, do, turbidity, temp, ec=450.0, orp=320.0):
         
     res = dict(CLASSES.get(prediction, CLASSES[1]))
     res["status"] = "CRITICAL_HAZARD"
+    if 'real_shap' in dir() and real_shap:
+        res['shap'] = real_shap
+
+    health = compute_river_health_score(
+        ph, do, turbidity, temp, ec, orp
+    )
+    res['river_health_score'] = health['score']
+    res['river_health_grade'] = health['grade']
+    res['health_components'] = health['component_scores']
     return res
 
 def simulate_network():
@@ -211,12 +416,20 @@ def simulate_network():
         updates = []
         for rv in VIRTUAL_RIVERS:
             # Generate baseline fluctuating data
-            ph = round(random.uniform(*rv['base_ph']), 2)
-            do = round(random.uniform(*rv['base_do']), 2)
-            turb = round(random.uniform(*rv['base_turb']), 2)
-            temp = round(random.uniform(*rv['base_temp']), 2)
-            ec = round(random.uniform(*rv['base_ec']), 1)
-            orp = round(random.uniform(*rv['base_orp']), 1)
+            def _gauss_sample(bounds):
+                lo, hi = bounds
+                mean = (lo + hi) / 2
+                std = (hi - lo) / 5
+                return float(np.clip(
+                    np.random.normal(mean, std), lo, hi
+                ))
+
+            ph   = round(_gauss_sample(rv['base_ph']), 2)
+            do   = round(_gauss_sample(rv['base_do']), 2)
+            turb = round(_gauss_sample(rv['base_turb']), 2)
+            temp = round(_gauss_sample(rv['base_temp']), 2)
+            ec   = round(_gauss_sample(rv['base_ec']), 1)
+            orp  = round(_gauss_sample(rv['base_orp']), 1)
             
             # Very rarely, simulate an extreme anomaly
             if random.random() < 0.05: 
@@ -295,12 +508,20 @@ def init_network_state():
     """Populate network state synchronously on startup so tests and immediate fetches succeed."""
     updates = []
     for rv in VIRTUAL_RIVERS:
-        ph = round(random.uniform(*rv['base_ph']), 2)
-        do = round(random.uniform(*rv['base_do']), 2)
-        turb = round(random.uniform(*rv['base_turb']), 2)
-        temp = round(random.uniform(*rv['base_temp']), 2)
-        ec = round(random.uniform(*rv['base_ec']), 1)
-        orp = round(random.uniform(*rv['base_orp']), 1)
+        def _gauss_sample(bounds):
+            lo, hi = bounds
+            mean = (lo + hi) / 2
+            std = (hi - lo) / 5
+            return float(np.clip(
+                np.random.normal(mean, std), lo, hi
+            ))
+
+        ph   = round(_gauss_sample(rv['base_ph']), 2)
+        do   = round(_gauss_sample(rv['base_do']), 2)
+        turb = round(_gauss_sample(rv['base_turb']), 2)
+        temp = round(_gauss_sample(rv['base_temp']), 2)
+        ec   = round(_gauss_sample(rv['base_ec']), 1)
+        orp  = round(_gauss_sample(rv['base_orp']), 1)
         
         prediction = run_inference(ph, do, turb, temp, ec, orp)
         w_temp = 24.5
@@ -617,9 +838,136 @@ def get_live_data():
     with lock:
         return jsonify(latest_inference)
 
+@app.route('/api/cpcb_forward', methods=['POST'])
+def cpcb_forward():
+    """
+    CPCB OCEMS-Compatible Telemetry Forwarder.
+    When activated with valid CPCB endpoint config,
+    forwards signed sensor readings to
+    cems.cpcb.gov.in in OCEMS JSON schema.
+
+    Currently in STANDBY mode — activate by setting
+    CPCB_ENDPOINT and CPCB_STATION_ID in .env
+    """
+    CPCB_ENDPOINT = os.getenv("CPCB_ENDPOINT", "")
+    CPCB_STATION_ID = os.getenv(
+        "CPCB_STATION_ID", ""
+    )
+
+    if not CPCB_ENDPOINT or not CPCB_STATION_ID:
+        return jsonify({
+            "status": "STANDBY",
+            "message": (
+                "CPCB forwarding inactive. "
+                "Set CPCB_ENDPOINT and "
+                "CPCB_STATION_ID in .env to activate."
+            )
+        }), 200
+
+    with lock:
+        latest = latest_inference
+
+    cpcb_payload = {
+        "station_id": CPCB_STATION_ID,
+        "timestamp": time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ", time.gmtime()
+        ),
+        "parameters": {
+            "pH": latest['raw_sensors']['ph'],
+            "DO_mg_L": latest['raw_sensors']['do'],
+            "Turbidity_NTU": latest[
+                'raw_sensors'
+            ]['turbidity'],
+            "Temperature_C": latest[
+                'raw_sensors'
+            ]['temperature'],
+            "EC_uS_cm": latest['raw_sensors']['ec'],
+            "ORP_mV": latest['raw_sensors']['orp']
+        },
+        "ai_classification": latest[
+            'prediction'
+        ]['pollutant'],
+        "status_flag": latest[
+            'prediction'
+        ].get('status', 'UNKNOWN')
+    }
+
+    try:
+        import urllib.request
+        req_data = json.dumps(
+            cpcb_payload
+        ).encode('utf-8')
+        req = urllib.request.Request(
+            CPCB_ENDPOINT,
+            data=req_data,
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
+        with urllib.request.urlopen(
+            req, timeout=10
+        ) as resp:
+            return jsonify({
+                "status": "FORWARDED",
+                "cpcb_response": resp.status,
+                "payload_sent": cpcb_payload
+            }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "FORWARD_FAILED",
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/audit_log', methods=['GET'])
+def get_audit_log():
+    """
+    Returns last N signed audit entries for
+    compliance review. Each entry contains
+    sensor values, classification, timestamp,
+    and HMAC-SHA256 integrity signature.
+    """
+    try:
+        n = min(int(
+            request.args.get('n', 100)
+        ), 1000)
+        entries = []
+        if AUDIT_LOG_PATH.exists():
+            with open(
+                AUDIT_LOG_PATH, 'r',
+                encoding='utf-8'
+            ) as f:
+                lines = f.readlines()
+            for line in lines[-n:]:
+                line = line.strip()
+                if line:
+                    entries.append(
+                        json.loads(line)
+                    )
+        return jsonify({
+            "total_entries": len(entries),
+            "entries": entries,
+            "log_file": str(AUDIT_LOG_PATH),
+            "disclaimer": (
+                "HMAC signatures use API_KEY. "
+                "Verify integrity before "
+                "regulatory submission."
+            )
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+
 @app.route('/api/predict', methods=['POST'])
 def predict():
     global latest_inference
+    auth_header = request.headers.get("X-API-Key", "")
+    if auth_header != API_KEY:
+        return jsonify({
+            "error": "Unauthorized",
+            "message": "Valid X-API-Key header required"
+        }), 401
     data = request.json
     try:
         # Add a debug print statement to log the incoming raw data in the terminal
@@ -645,6 +993,13 @@ def predict():
             
         final_prediction = dict(result_payload)
         final_prediction['shap'] = custom_shap
+
+        ts, sig = sign_and_log(
+            ph, do, turbidity, temperature,
+            ec, orp, final_prediction
+        )
+        final_prediction['audit_timestamp'] = ts
+        final_prediction['audit_signature'] = sig
         
         with lock:
             latest_inference = {
@@ -660,4 +1015,11 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    debug_mode = os.getenv(
+        "FLASK_DEBUG", "false"
+    ).lower() == "true"
+    app.run(
+        host='0.0.0.0',
+        debug=debug_mode,
+        port=int(os.getenv("PORT", 5000))
+    )

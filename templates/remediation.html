@@ -6,6 +6,15 @@
     <title>Remediation Action Plan — Varuna AI</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <!-- Open Graph / Twitter Card -->
+    <meta property="og:title" content="Remediation Action Plan — Varuna AI">
+    <meta property="og:description" content="AI-generated remediation strategies for detected river pollution events.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Remediation Action Plan — Varuna AI">
+    <meta name="twitter:description" content="AI-generated remediation strategies for detected river pollution events.">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body style="background-color: var(--canvas-bg);">
@@ -34,6 +43,47 @@
             {% else %}
             <!-- Polluted State: Action Plan Strategy Grid -->
             <div class="polluted-state-wrapper" style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 2rem;">
+                {% if status == 'CRITICAL_HAZARD' %}
+                <div style="
+                  background: #fff8e1;
+                  border: 1.5px solid #f59e0b;
+                  border-radius: 14px;
+                  padding: 16px 22px;
+                  margin-bottom: 2rem;
+                  display: flex;
+                  align-items: flex-start;
+                  gap: 12px;
+                ">
+                  <span style="font-size:1.4rem;line-height:1;">
+                    &#9888;&#65039;
+                  </span>
+                  <div>
+                    <strong style="
+                      font-size: 0.85rem;
+                      text-transform: uppercase;
+                      letter-spacing: 0.05em;
+                      color: #92400e;
+                    ">
+                      Advisory Notice
+                    </strong>
+                    <p style="
+                      font-size: 0.875rem;
+                      color: #78350f;
+                      margin: 4px 0 0 0;
+                      line-height: 1.5;
+                    ">
+                      All remediation strategies are AI-generated
+                      suggestions based on inferred sensor signatures.
+                      They do not constitute professional environmental
+                      engineering advice. Consult a certified
+                      environmental scientist or NABL-accredited
+                      laboratory before deploying any chemical,
+                      biological, or physical intervention in a
+                      natural water body.
+                    </p>
+                  </div>
+                </div>
+                {% endif %}
                 <div class="remediation-title-wrap" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
                     <div class="hazard-badge" style="font-size: 0.9rem; font-weight: 700; color: #ff453a; background: rgba(255, 69, 58, 0.15); padding: 8px 16px; border-radius: 999px; display: inline-block; width: max-content;">CRITICAL HAZARD DETECTED</div>
                     <h2 class="polluted-headline" style="font-size: 32px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 0.5rem;">

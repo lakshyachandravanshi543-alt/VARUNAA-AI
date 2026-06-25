@@ -63,6 +63,13 @@ void loop() {
     // 4. Send the POST Request to the Flask API
     http.begin(client, serverName);
     http.addHeader("Content-Type", "application/json");
+    // SECURITY: Replace this key with your actual
+    // API key from .env before field deployment.
+    // Never commit real keys to version control.
+    http.addHeader(
+        "X-API-Key",
+        "varuna-prod-key-change-this-immediately"
+    );
 
     Serial.println("Sending physical stats to AI Detective...");
     int httpResponseCode = http.POST(jsonPayload);

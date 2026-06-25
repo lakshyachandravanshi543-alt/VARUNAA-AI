@@ -6,6 +6,15 @@
     <title>Hardware Specs — Varuna AI</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <!-- Open Graph / Twitter Card -->
+    <meta property="og:title" content="Hardware Specs — Varuna AI">
+    <meta property="og:description" content="Bill of Materials and edge IoT hardware specs for the Varuna AI Smart Wand sensor platform.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Hardware Specs — Varuna AI">
+    <meta name="twitter:description" content="Bill of Materials and edge IoT hardware specs for the Varuna AI Smart Wand sensor platform.">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body style="background-color: var(--canvas-bg);">
@@ -33,11 +42,11 @@
 
         <!-- Main Hardware Showcase (Smart Wand) -->
         <section class="wand-showcase-section" style="margin-bottom: 4rem;">
-            <div class="strategy-card card-snow" style="padding: 48px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none; align-items: center;">
+            <div class="hw-hero-grid">
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: var(--canvas-bg); padding: 6px 12px; border-radius: 100px; width: fit-content; border: 1px solid var(--border-color);">
-                        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #34c759; display: inline-block;"></span>
-                        <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">Varuna AI Smart Wand v1.0</span>
+                    <div class="hw-status-pill">
+                        <span class="hw-status-dot"></span>
+                        <span class="hw-status-label">Varuna AI Smart Wand v1.0</span>
                     </div>
                     <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; line-height: 1.1; margin: 0;">
                         The Portable Smart Wand
@@ -45,27 +54,27 @@
                     <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
                         An all-in-one multi-parameter edge sensing instrument designed for rapid, on-site river water analysis. By merging six distinct electrochemical and physical sensors with local micro-inference power, the Wand transforms raw environmental telemetry into actionable chemical intelligence in under 5 seconds.
                     </p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
-                        <div style="background-color: var(--canvas-bg); padding: 16px; border-radius: 18px; border: 1px solid var(--border-color);">
-                            <div style="font-size: 0.75rem; text-transform: uppercase; color: #707070; font-weight: 600; margin-bottom: 4px;">Chassis Casing</div>
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Ruggedized IP67 Sealed PVC</div>
+                    <div class="hw-spec-grid">
+                        <div class="hw-spec-cell">
+                            <div class="hw-spec-label">Chassis Casing</div>
+                            <div class="hw-spec-value">Ruggedized IP67 Sealed PVC</div>
                         </div>
-                        <div style="background-color: var(--canvas-bg); padding: 16px; border-radius: 18px; border: 1px solid var(--border-color);">
-                            <div style="font-size: 0.75rem; text-transform: uppercase; color: #707070; font-weight: 600; margin-bottom: 4px;">Response Time</div>
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">&lt; 5s Local Inference</div>
+                        <div class="hw-spec-cell">
+                            <div class="hw-spec-label">Response Time</div>
+                            <div class="hw-spec-value">&lt; 5s Local Inference</div>
                         </div>
-                        <div style="background-color: var(--canvas-bg); padding: 16px; border-radius: 18px; border: 1px solid var(--border-color);">
-                            <div style="font-size: 0.75rem; text-transform: uppercase; color: #707070; font-weight: 600; margin-bottom: 4px;">Analog ADC Resolution</div>
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">12-Bit (ESP32 Calibration)</div>
+                        <div class="hw-spec-cell">
+                            <div class="hw-spec-label">Analog ADC Resolution</div>
+                            <div class="hw-spec-value">12-Bit (ESP32 Calibration)</div>
                         </div>
-                        <div style="background-color: var(--canvas-bg); padding: 16px; border-radius: 18px; border: 1px solid var(--border-color);">
-                            <div style="font-size: 0.75rem; text-transform: uppercase; color: #707070; font-weight: 600; margin-bottom: 4px;">Total Build Cost</div>
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">&lt; ₹8,500 INR (BOM)</div>
+                        <div class="hw-spec-cell">
+                            <div class="hw-spec-label">Total Build Cost</div>
+                            <div class="hw-spec-value">&lt; &#8377;8,500 INR (BOM)</div>
                         </div>
                     </div>
                 </div>
-                <div style="position: relative; overflow: hidden; border-radius: 20px; border: 1px solid var(--border-color); background-color: #fafafa; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 350px;">
-                    <img src="{{ url_for('static', filename='images/smart_wand.png') }}" alt="Varuna AI Smart Wand v1.0" style="width: 100%; height: auto; object-fit: contain; display: block; max-height: 380px; transform: scale(1.05);" />
+                <div class="hw-image-frame">
+                    <img src="{{ url_for('static', filename='images/smart_wand.png') }}" alt="Varuna AI Smart Wand v1.0" />
                 </div>
             </div>
         </section>
@@ -79,9 +88,9 @@
         <section class="hardware-grid-section" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 3rem;">
             
             <!-- Component 1: The Core Brain -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" alt="ESP32 DevKitC v4 Microcontroller" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Processor</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" alt="ESP32 DevKitC v4 Microcontroller" />
+                <span class="hw-eyebrow">Processor</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">THE CORE BRAIN (ESP32 DevKitC v4)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Edge AI Core: Reads raw analog voltages and digital values from all 6 sensors, calibrates them against stored baselines, and pushes secure data via Wi-Fi/HTTP POST to the Flask backend <code style="font-size: 0.85rem; background-color: var(--canvas-bg); padding: 2px 6px; border-radius: 4px; color: var(--accent-azure);">{{ backend_url }}</code>.
@@ -89,9 +98,9 @@
             </div>
 
             <!-- Component 2: Temperature Sensor -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="Temperature Probe" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Thermal Calibration</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="Temperature Probe" />
+                <span class="hw-eyebrow">Thermal Calibration</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">DIGITAL VALIDATION (Temperature DS18B20)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Digital Truth: Provides precise temperature data to calibrate all other chemical parameters. Used to validate DO (Dissolved Oxygen) and pH calculations against <code style="font-size: 0.85rem; background-color: var(--canvas-bg); padding: 2px 6px; border-radius: 4px; color: var(--accent-azure);">{{ temperature_range }}</code>.
@@ -99,9 +108,9 @@
             </div>
 
             <!-- Component 3: Turbidity Sensor -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80" alt="Turbidity Sensor Probe" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Clarity</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80" alt="Turbidity Sensor Probe" />
+                <span class="hw-eyebrow">Clarity</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">OPTICAL CLARITY (Turbidity Sensor)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Suspended Solids Monitor: Uses optical scattering to measure NTU (gandapan). The backend calls the Weather API to dynamically adjust this alarm threshold if <code style="font-size: 0.85rem; background-color: var(--canvas-bg); padding: 2px 6px; border-radius: 4px; color: var(--accent-azure);">{{ weather_status == 'Rain' }}</code>.
@@ -109,9 +118,9 @@
             </div>
 
             <!-- Component 4: TDS/EC Sensor -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1617155093730-a8bf47be792d?auto=format&fit=crop&w=600&q=80" alt="TDS/EC Sensor Module" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Conductivity</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1617155093730-a8bf47be792d?auto=format&fit=crop&w=600&q=80" alt="TDS/EC Sensor Module" />
+                <span class="hw-eyebrow">Conductivity</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">TOTAL DISSOLVED SOLIDS (TDS/EC Sensor)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Dissolved Solids Analyzer: Tracks electrical conductivity (EC). Immediately flags non-visible heavy metals, salts, and chemical runoff.
@@ -119,9 +128,9 @@
             </div>
 
             <!-- Component 5: pH Sensor -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1579154204601-01588f351167?auto=format&fit=crop&w=600&q=80" alt="pH Sensor Probe" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Acidity</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1579154204601-01588f351167?auto=format&fit=crop&w=600&q=80" alt="pH Sensor Probe" />
+                <span class="hw-eyebrow">Acidity</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">CHEMICAL ACIDITY (pH Sensor Module)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Acidity Metric: The primary monitor for industrial acid waste or agricultural chemical leakage.
@@ -129,9 +138,9 @@
             </div>
 
             <!-- Component 6: ORP Sensor -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&w=600&q=80" alt="ORP Sensor Module" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Redox Potential</span>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&w=600&q=80" alt="ORP Sensor Module" />
+                <span class="hw-eyebrow">Redox Potential</span>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">CHEMICAL OXIDATION (Analog ORP Sensor)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Pollutant Oxidizer: Highly sensitive indicator of sewage contamination or specific chemical signatures (like lead/oil).
@@ -139,12 +148,12 @@
             </div>
 
             <!-- Component 7: Power & Ruggedization -->
-            <div class="strategy-card card-snow" style="padding: 32px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80" alt="18650 Li-ion batteries" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;" />
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Power & Chassis</span>
-                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">POWER & RUGGEDIZATION (Batteries & Casing)</h3>
+            <div class="hw-component-card">
+                <img class="hw-component-img" src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80" alt="18650 Li-ion batteries" />
+                <span class="hw-eyebrow">Power &amp; Chassis</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">POWER &amp; RUGGEDIZATION (Batteries &amp; Casing)</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-                    Portable Edge: Driven by dual 18650 cells for full-shift deployment. The entire system is encased in a 1.5" PVC tube, sealed with IP67-grade epoxy resin.
+                    Portable Edge: Driven by dual 18650 cells for full-shift deployment. The entire system is encased in a 1.5&quot; PVC tube, sealed with IP67-grade epoxy resin.
                 </p>
             </div>
 
@@ -159,9 +168,9 @@
         <section class="upgrades-grid-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
             
             <!-- Card 1: Anti-Biofouling Management -->
-            <div class="strategy-card card-snow" style="padding: 40px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">🧼</div>
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Anti-Biofouling Management</span>
+            <div class="hw-upgrade-card">
+                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">&#129532;</div>
+                <span class="hw-eyebrow">Anti-Biofouling Management</span>
                 <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 0;">Automated Sensor Maintenance.</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Equipped with automated mechanical wipers and ultrasonic transducers to prevent algal and bacterial buildup. Ensures zero sensor drift and maintains EPA-level accuracy during prolonged remote deployments.
@@ -169,9 +178,9 @@
             </div>
 
             <!-- Card 2: Long-Range Telemetry (LoRaWAN) -->
-            <div class="strategy-card card-snow" style="padding: 40px; display: flex; flex-direction: column; gap: 1rem; border-radius: 28px; background-color: #ffffff; border: 1px solid var(--border-color); box-shadow: none;">
-                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">📡</div>
-                <span class="card-eyebrow" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Long-Range Telemetry (LoRaWAN)</span>
+            <div class="hw-upgrade-card">
+                <div class="icon-placeholder" style="font-size: 2.5rem; line-height: 1;">&#128225;</div>
+                <span class="hw-eyebrow">Long-Range Telemetry (LoRaWAN)</span>
                 <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 0;">Off-Grid Data Transmission.</h3>
                 <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
                     Upgraded from standard Wi-Fi to integrated LoRaWAN and NB-IoT modules. Capable of securely transmitting 6-dimensional telemetry data up to 15 kilometers without relying on local municipal network infrastructure.
@@ -191,7 +200,7 @@
     <!-- App Footer -->
     <footer class="app-footer">
         <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>
-        <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
+        <p class="footer-sub">&copy; 2026 Varuna AI. All classifications are AI-inferred from sensor data. Validate with NABL-accredited laboratory analysis before regulatory or enforcement use.</p>
     </footer>
 
     <!-- Style overrides to support responsive layouts -->

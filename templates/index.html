@@ -6,6 +6,15 @@
     <title>Varuna AI — On-Demand Water Health Inference Engine</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <!-- Open Graph / Twitter Card -->
+    <meta property="og:title" content="Varuna AI — River Intelligence Engine">
+    <meta property="og:description" content="AI-powered real-time river pollution detection and remediation guidance for Indian river systems.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Varuna AI — River Intelligence Engine">
+    <meta name="twitter:description" content="AI-powered real-time river pollution detection and remediation guidance.">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -56,6 +65,21 @@
                         <span class="map-status-dot"></span>
                         <span class="map-status-text">Active Telemetry Array: India, Egypt, Europe, UK</span>
                     </div>
+
+                    <!-- F1: Skeleton loader shown until first API response -->
+                    <div id="skeleton-loader" style="display: grid; gap: 16px; padding: 1rem 0;">
+                        <div class="skeleton-bar"></div>
+                        <div class="skeleton-bar"></div>
+                        <div class="skeleton-bar"></div>
+                        <div class="skeleton-bar"></div>
+                        <div class="skeleton-bar"></div>
+                    </div>
+
+                    <!-- F1: Error state shown after 3 consecutive fetch failures -->
+                    <div id="fetch-error" style="display: none; text-align: center; padding: 2rem; color: #ff3b30; font-size: 0.95rem;">
+                        &#9888; Connection lost. Retrying...
+                    </div>
+
                     <div id="map"></div>
                 </div>
             </div>
@@ -282,10 +306,9 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="app-footer">
         <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>
-        <p class="footer-sub">&copy; 2026 Ministry of Jal Shakti. All scientific metrics are inferred and subjected to model constraints.</p>
+        <p class="footer-sub">&copy; 2026 Varuna AI. All classifications are AI-inferred from sensor data. Validate with NABL-accredited laboratory analysis before regulatory or enforcement use.</p>
     </footer>
 
     <!-- Leaflet JS & Chart JS & Client Script -->

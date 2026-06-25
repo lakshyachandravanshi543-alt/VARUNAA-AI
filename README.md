@@ -70,9 +70,9 @@ python -m unittest test_app.py
 ### 3. Deploying to Google Cloud Run
 If deploying to your Google Cloud Run account, navigate to the workspace directory and execute:
 ```bash
-gcloud config set project test121-493806
-gcloud builds submit --tag gcr.io/test121-493806/water-quality-ai
-gcloud run deploy water-quality-ai --image gcr.io/test121-493806/water-quality-ai --platform managed --region us-central1 --allow-unauthenticated --concurrency 8 --port 8080
+gcloud config set project YOUR_GCP_PROJECT_ID
+gcloud builds submit --tag gcr.io/YOUR_GCP_PROJECT_ID/water-quality-ai
+gcloud run deploy water-quality-ai --image gcr.io/YOUR_GCP_PROJECT_ID/water-quality-ai --platform managed --region us-central1 --allow-unauthenticated --concurrency 8 --port 8080
 ```
 Alternatively, execute the local deployment script:
 ```bash
@@ -81,7 +81,14 @@ Alternatively, execute the local deployment script:
 
 ---
 
-## Model Evaluation Metrics
+## Model Evaluation Metrics (Synthetic Dataset)
+> ⚠️ **Disclaimer:** All metrics below are
+> evaluated on synthetically generated training
+> data with Gaussian noise. Real-world field
+> validation against NABL-accredited lab samples
+> is in progress. Do not cite these figures in
+> regulatory submissions, NGT filings, or academic
+> papers without field validation data.
 *   **Petroleum Hydrocarbon Slick Prediction:** Precision `0.98`, Recall `0.99`, F1-Score `0.98`
 *   **Agricultural Eutrophication Runoff Prediction:** Precision `0.99`, Recall `0.98`, F1-Score `0.99`
 *   **Heavy Metals, Sewage, Plastics, and Clean Water:** Achieved Precision `1.00`, Recall `1.00`, and F1-Score `1.00` due to highly distinguishable synthetic signature clusters.
