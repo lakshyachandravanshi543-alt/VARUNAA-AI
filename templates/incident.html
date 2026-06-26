@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Command — Varuna AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <meta property="og:title" content="Incident Command — Varuna AI">
+  <meta property="og:description" content="Real-time river pollution incident response dashboard.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Incident Command — Varuna AI">
+  <meta name="twitter:description" content="Real-time river pollution incident response dashboard.">
+</head>
+<body style="background-color: #f5f5f7;">
+
+  <!-- Sticky Navigation Bar -->
+  <header class="navbar">
+    <div class="navbar-content">
+      <a href="{{ url_for('index') }}" class="nav-logo" style="text-decoration: none;">Varuna <span class="nav-logo-sub">AI</span></a>
+      <nav class="nav-links">
+        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('remediation') }}" class="nav-link">Remediation</a>
+        <a href="{{ url_for('incident') }}" class="nav-link" style="color: var(--text-primary); font-weight: 600;">Incident</a>
+        <a href="{{ url_for('hardware') }}" class="nav-link">Hardware Specs</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    {% if water_is_clean %}
+    <!-- ===== SAFE STATE ===== -->
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+      <div style="background: #ffffff; border-radius: 24px; border: 0.5px solid #d2d2d7; padding: 60px 48px; text-align: center; max-width: 560px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; box-shadow: 0 4px 32px rgba(0,0,0,0.04);">
+
+        <!-- Inline SVG checkmark -->
+        <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="44" cy="44" r="40" stroke="#34c759" stroke-width="2.5" fill="#f0fff4"/>
+          <path d="M27 45.5L38.5 57L62 32" stroke="#34c759" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -1px; color: #1d1d1f; margin-bottom: 0.5rem;">All rivers nominal</h1>
+          <p style="font-size: 0.95rem; color: #6e6e73; line-height: 1.6; max-width: 400px; margin: 0 auto;">
+            No active pollution incidents detected across the monitoring network. All parameters within healthy baseline ranges.
+          </p>
+        </div>
+
+        {% if prediction.river_health_score is defined and prediction.river_health_score %}
+        <div style="font-size: 3rem; font-weight: 800; color: #34c759; letter-spacing: -2px; line-height: 1;">
+          {{ prediction.river_health_score }}<span style="font-size: 1rem; font-weight: 600; color: #6e6e73;">/100</span>
+        </div>
+        <p style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #6e6e73; margin-top: -0.75rem;">River Health Score</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" style="display: inline-flex; align-items: center; gap: 8px; background: #0071e3; color: white; padding: 13px 28px; border-radius: 999px; font-size: 0.875rem; font-weight: 600; text-decoration: none; margin-top: 0.5rem;">
+          ← Return to live monitor
+        </a>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- ===== INCIDENT LAYOUT ===== -->
+
+    <!-- BLOCK A: STATUS BANNER -->
+    <div class="inc-status-banner inc-critical">
+      <!-- Pulsing dot -->
+      <div style="flex-shrink: 0;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; animation: pulse-red 1.6s ease-in-out infinite;"></div>
+      </div>
+
+      <!-- Middle: incident info -->
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #ff3b30; margin-bottom: 3px;">Critical Hazard Detected</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #1d1d1f; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ detected_pollutant }}</div>
+        <div style="font-size: 0.8rem; color: #6e6e73; margin-top: 3px;">
+          {{ river_name }} &mdash; pH {{ raw_sensors.ph }} &middot; EC {{ raw_sensors.ec }} µS/cm &middot; DO {{ raw_sensors.do }} mg/L
+        </div>
+      </div>
+
+      <!-- Right: timing & weather -->
+      <div style="text-align: right; flex-shrink: 0;">
+        <div style="font-size: 0.7rem; color: #6e6e73;">Detected</div>
+        <strong id="audit-time-display" style="font-size: 0.82rem; color: #1d1d1f;">--</strong>
+        <div style="font-size: 0.7rem; color: #6e6e73; margin-top: 4px;">{{ weather_temp }}°C &middot; {{ weather_status }}</div>
+        <div style="margin-top: 3px;">
+          <span style="color:#ff3b30; font-size:0.72rem; font-weight:600;">&#9679; Live</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOCK B: 4-METRIC SCORE ROW -->
+    <div class="inc-score-row">
+
+      <!-- Card 1: River Health Score -->
+      <div class="inc-score-card">
+        <div class="inc-score-label">River health score</div>
+        {% set score = prediction.river_health_score | default(50) | int %}
+        {% if score >= 60 %}
+          <div class="inc-score-value" style="color: #34c759;">{{ prediction.river_health_score | default('--') }}</div>
+        {% elif score >= 40 %}
+          <div class="inc-score-value" style="color: #ff9500;">{{ prediction.river_health_score | default('--') }}</div>
+        {% else %}
+          <div class="inc-score-value" style="color: #ff3b30;">{{ prediction.river_health_score | default('--') }}</div>
+        {% endif %}
+        <div class="inc-score-sub">{{ prediction.river_health_grade | default('Unknown') }} &mdash; /100</div>
+      </div>
+
+      <!-- Card 2: AI Confidence -->
+      <div class="inc-score-card">
+        <div class="inc-score-label">Confidence</div>
+        <div class="inc-score-value" style="color: #1d1d1f;">{{ prediction.confidence | default('--') }}%</div>
+        <div class="inc-score-sub">AI classification</div>
+      </div>
+
+      <!-- Card 3: Event Duration -->
+      <div class="inc-score-card">
+        <div class="inc-score-label">Duration</div>
+        <div class="inc-score-value" id="duration-color" style="color: #1d1d1f;"><span id="duration-value">--</span></div>
+        <div class="inc-score-sub">Event active</div>
+      </div>
+
+      <!-- Card 4: Trend -->
+      <div class="inc-score-card">
+        <div class="inc-score-label">Trend</div>
+        <div class="inc-score-value">
+          {% if trend_dir == 'down' %}
+            <span style="color:#ff3b30;">&#8595; {{ trend }}</span>
+          {% elif trend_dir == 'flat' %}
+            <span style="color:#ff9500;">&#8594; {{ trend }}</span>
+          {% else %}
+            <span style="color:#34c759;">&#8593; {{ trend }}</span>
+          {% endif %}
+        </div>
+        <div class="inc-score-sub">vs. last reading</div>
+      </div>
+
+    </div>
+
+    <!-- BLOCK C: LIVE SENSOR STRIP -->
+    <div class="inc-sensor-strip">
+      <div class="inc-sensor-strip-title">Live sensor readings</div>
+      <div class="inc-sensor-grid">
+
+        <!-- pH -->
+        {% set ph_val = raw_sensors.ph | float %}
+        {% if ph_val >= 6.5 and ph_val <= 8.5 %}
+          {% set ph_color = '#34c759' %}
+        {% elif ph_val >= 3.25 and ph_val <= 17.0 %}
+          {% set ph_color = '#ff9500' %}
+        {% else %}
+          {% set ph_color = '#ff3b30' %}
+        {% endif %}
+        {% set ph_width = [(ph_val / 17.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">pH</div>
+          <div class="inc-sensor-val" style="color: {{ ph_color }};">{{ raw_sensors.ph }}</div>
+          <div class="inc-sensor-unit">&mdash;</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ ph_width }}%; background: {{ ph_color }};"></div></div>
+        </div>
+
+        <!-- DO -->
+        {% set do_val = raw_sensors.do | float %}
+        {% if do_val >= 4.5 and do_val <= 9.0 %}
+          {% set do_color = '#34c759' %}
+        {% elif do_val >= 0 and do_val <= 18.0 %}
+          {% set do_color = '#ff9500' %}
+        {% else %}
+          {% set do_color = '#ff3b30' %}
+        {% endif %}
+        {% set do_width = [(do_val / 18.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">DO</div>
+          <div class="inc-sensor-val" style="color: {{ do_color }};">{{ raw_sensors.do }}</div>
+          <div class="inc-sensor-unit">mg/L</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ do_width }}%; background: {{ do_color }};"></div></div>
+        </div>
+
+        <!-- Turbidity -->
+        {% set turb_val = raw_sensors.turbidity | float %}
+        {% if turb_val >= 0 and turb_val <= 15.0 %}
+          {% set turb_color = '#34c759' %}
+        {% elif turb_val <= 30.0 %}
+          {% set turb_color = '#ff9500' %}
+        {% else %}
+          {% set turb_color = '#ff3b30' %}
+        {% endif %}
+        {% set turb_width = [(turb_val / 30.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">Turb</div>
+          <div class="inc-sensor-val" style="color: {{ turb_color }};">{{ raw_sensors.turbidity }}</div>
+          <div class="inc-sensor-unit">NTU</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ turb_width }}%; background: {{ turb_color }};"></div></div>
+        </div>
+
+        <!-- Temperature -->
+        {% set temp_val = raw_sensors.temperature | float %}
+        {% if temp_val >= 15 and temp_val <= 25.0 %}
+          {% set temp_color = '#34c759' %}
+        {% elif temp_val >= 7.5 and temp_val <= 50.0 %}
+          {% set temp_color = '#ff9500' %}
+        {% else %}
+          {% set temp_color = '#ff3b30' %}
+        {% endif %}
+        {% set temp_width = [(temp_val / 50.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">Temp</div>
+          <div class="inc-sensor-val" style="color: {{ temp_color }};">{{ raw_sensors.temperature }}</div>
+          <div class="inc-sensor-unit">°C</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ temp_width }}%; background: {{ temp_color }};"></div></div>
+        </div>
+
+        <!-- EC -->
+        {% set ec_val = raw_sensors.ec | float %}
+        {% if ec_val >= 0 and ec_val <= 800 %}
+          {% set ec_color = '#34c759' %}
+        {% elif ec_val <= 1600 %}
+          {% set ec_color = '#ff9500' %}
+        {% else %}
+          {% set ec_color = '#ff3b30' %}
+        {% endif %}
+        {% set ec_width = [(ec_val / 1600.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">EC</div>
+          <div class="inc-sensor-val" style="color: {{ ec_color }};">{{ raw_sensors.ec }}</div>
+          <div class="inc-sensor-unit">µS/cm</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ ec_width }}%; background: {{ ec_color }};"></div></div>
+        </div>
+
+        <!-- ORP -->
+        {% set orp_val = raw_sensors.orp | float %}
+        {% if orp_val >= 100 and orp_val <= 400 %}
+          {% set orp_color = '#34c759' %}
+        {% elif orp_val >= 50 and orp_val <= 800 %}
+          {% set orp_color = '#ff9500' %}
+        {% else %}
+          {% set orp_color = '#ff3b30' %}
+        {% endif %}
+        {% set orp_width = [(([orp_val, 0] | max) / 800.0 * 100), 100] | min %}
+        <div class="inc-sensor-cell">
+          <div class="inc-sensor-name">ORP</div>
+          <div class="inc-sensor-val" style="color: {{ orp_color }};">{{ raw_sensors.orp }}</div>
+          <div class="inc-sensor-unit">mV</div>
+          <div class="inc-sensor-bar"><div class="inc-sensor-bar-fill" style="width: {{ orp_width }}%; background: {{ orp_color }};"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BLOCK D: THREE-TAB ACTION PANEL -->
+    <div style="margin-bottom: 1.5rem;">
+
+      <!-- Tab bar -->
+      <div class="inc-tab-bar">
+        <div class="inc-tab active" id="inc-tab-action" onclick="incShowTab('action')">Immediate action</div>
+        <div class="inc-tab" id="inc-tab-tech" onclick="incShowTab('tech')">Advanced tech</div>
+        <div class="inc-tab" id="inc-tab-ai" onclick="incShowTab('ai')">AI explanation</div>
+      </div>
+
+      <!-- TAB 1: Immediate Action -->
+      <div id="inc-panel-action" class="inc-tab-panel">
+        <div class="inc-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+
+          <!-- LEFT: Do this now -->
+          <div class="inc-action-card inc-urgent">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #c85000; margin-bottom: 6px;">Do this now &mdash; 0 to 2 hours</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Field response</div>
+            <!-- Hidden raw HTML from prediction.action, parsed by JS -->
+            <div id="inc-action-steps" class="inc-steps-raw" style="display:none;">{{ prediction.action | default('') | safe }}</div>
+            <div id="inc-action-rendered" class="inc-action-steps"></div>
+          </div>
+
+          <!-- RIGHT: Deploy within 24-72h -->
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Deploy within 24&ndash;72 hours</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 10px;">On-site remediation</div>
+            <p style="font-size: 0.82rem; color: #3d3d3d; line-height: 1.6; margin-bottom: 12px;">{{ prediction.details | default('No details available.') }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              {% for p in prediction.specific_pollutants | default([]) %}
+                <span class="inc-compound-pill">{{ p }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 2: Advanced Tech -->
+      <div id="inc-panel-tech" class="inc-tab-panel" style="display:none;">
+        <div class="inc-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+
+          {% if 'Heavy Metal' in detected_pollutant %}
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Industrial &mdash; 1 to 4 weeks</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Electrocoagulation</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Pass electrical current through sacrificial iron/aluminium anodes to precipitate toxic cations.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Deploy downstream of contamination. Mobile power unit required. Cost: ₹2&ndash;8L per site.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Advanced global &mdash; ongoing</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Nanomaterial sorbents</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Solar-powered filter drones with magnetic iron oxide nanoparticles capture toxic cations continuously.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Particles magnetically recovered and regenerated — zero chemical secondary contamination.</div>
+              </div>
+            </div>
+          </div>
+
+          {% elif 'Sewage' in detected_pollutant %}
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Industrial &mdash; 48 hours</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Ozonation disinfection</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Inject high-density ozone gas to oxidise organic compounds and destroy bacterial pathogens.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Fixed or mobile ozone generators can be deployed within 48 hours.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Advanced global &mdash; modular</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Membrane bioreactors</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Submerged multi-stage membrane filtration grids separate suspended biological loads at microscale.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Units are modular and can be deployed as floating platforms.</div>
+              </div>
+            </div>
+          </div>
+
+          {% elif 'Eutrophication' in detected_pollutant %}
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Non-chemical &mdash; reusable</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Ultrasonic algal lysis</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Pontoon-mounted transducers emit precise frequencies to collapse cyanobacteria gas vesicles without harming fish.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Non-chemical. No secondary contamination. Reusable units.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Long-term &mdash; 3 to 5 years</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Phoslock clay application</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Apply lanthanum-modified bentonite clay to bind dissolved phosphate ions permanently into sediment.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Single application lasts 3&ndash;5 years in low-turbulence water bodies.</div>
+              </div>
+            </div>
+          </div>
+
+          {% elif 'Hydrocarbon' in detected_pollutant or 'Petrochemical' in detected_pollutant %}
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Biological &mdash; 72 hours</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Biostimulation</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Disperse Alcanivorax borkumensis cultures with slow-release nutrients to accelerate oil biodegradation.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Most effective within 72 hours of spill detection.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Solar-powered &mdash; zero energy input</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Photocatalytic membranes</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">TiO₂-coated polymer membranes use solar UV to chemically break down complex hydrocarbons continuously.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Zero energy input required beyond ambient solar irradiance.</div>
+              </div>
+            </div>
+          </div>
+
+          {% else %}
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Monitoring upgrade &mdash; immediate</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Advanced monitoring upgrade</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">Deploy additional multiparameter sensor nodes upstream to identify contamination source point.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Cross-reference with satellite Sentinel-2 imagery for spatial extent mapping.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inc-action-card">
+            <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e6e73; margin-bottom: 6px;">Remote sensing &mdash; every 5 days</div>
+            <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Satellite data integration</div>
+            <div class="inc-action-steps">
+              <div class="inc-step">
+                <div class="inc-step-num inc-orange">1</div>
+                <div class="inc-step-text">ESA Copernicus Sentinel-2 provides surface water reflectance at 10m resolution every 5 days, free.</div>
+              </div>
+              <div class="inc-step">
+                <div class="inc-step-num">2</div>
+                <div class="inc-step-text">Integrate with Varuna AI API to detect algal blooms and sediment plumes not visible to in-situ sensors.</div>
+              </div>
+            </div>
+          </div>
+
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- TAB 3: AI Explanation -->
+      <div id="inc-panel-ai" class="inc-tab-panel" style="display:none;">
+        <div class="inc-action-card" style="padding: 1.5rem;">
+
+          <!-- SHAP Section -->
+          <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e73; margin-bottom: 4px;">AI feature impact &mdash; why this classification</div>
+          <div style="font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 14px;">SHAP explanation</div>
+          <div id="inc-shap-bars"></div>
+          <script id="inc-shap-data" type="application/json">{{ prediction.shap | default([]) | tojson }}</script>
+
+          <hr style="border:none; border-top: 0.5px solid #e8e8e8; margin: 1.25rem 0;">
+
+          <!-- Chemical definition -->
+          <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e73; margin-bottom: 6px;">What this pollutant is</div>
+          <p style="font-size: 0.82rem; color: #3d3d3d; line-height: 1.6;">{{ prediction.chemical_definition | default('No definition available.') }}</p>
+
+          <hr style="border:none; border-top: 0.5px solid #e8e8e8; margin: 1.25rem 0;">
+
+          <!-- Regulatory thresholds -->
+          <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e73; margin-bottom: 6px;">Regulatory thresholds</div>
+          <p style="font-size: 0.82rem; color: #3d3d3d; line-height: 1.6;">{{ prediction.threshold | default('&mdash;') }}</p>
+
+          <hr style="border:none; border-top: 0.5px solid #e8e8e8; margin: 1.25rem 0;">
+
+          <!-- Audit signature -->
+          <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e73; margin-bottom: 8px;">Data integrity</div>
+          <div style="font-family: 'Courier New', Courier, monospace; font-size: 0.7rem; color: #9e9e9e; line-height: 1.9;">
+            <div>Audit timestamp: <span id="inc-audit-ts">--</span></div>
+            {% if prediction.audit_signature %}
+              <div>HMAC-SHA256: {{ prediction.audit_signature[:20] }}...</div>
+            {% else %}
+              <div style="color: #ff9500; font-family: var(--font-family); font-size: 0.75rem;">Audit signing not yet active &mdash; enable in .env to activate tamper-evident logging.</div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BLOCK E: ESCALATION CONTACTS -->
+    <div class="inc-escalation-card">
+      <div class="inc-escalation-title">Escalation contacts</div>
+
+      <!-- Contact 1 -->
+      <div class="inc-contact-row">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8f0fe; color: #0071e3; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">PCB</div>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #1d1d1f;">State Pollution Control Board</div>
+            <div style="font-size: 0.72rem; color: #6e6e73;">Primary enforcement authority</div>
+          </div>
+        </div>
+        <button onclick="alert('Contact integration coming soon')" style="background: #e8f0fe; color: #0071e3; border: none; border-radius: 8px; padding: 5px 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">Call now</button>
+      </div>
+
+      <!-- Contact 2 -->
+      <div class="inc-contact-row">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8f0fe; color: #0071e3; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">NG</div>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #1d1d1f;">NMCG Control Room</div>
+            <div style="font-size: 0.72rem; color: #6e6e73;">Namami Gange rapid response</div>
+          </div>
+        </div>
+        <button onclick="alert('Contact integration coming soon')" style="background: #e8f0fe; color: #0071e3; border: none; border-radius: 8px; padding: 5px 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">File report</button>
+      </div>
+
+      <!-- Contact 3 -->
+      <div class="inc-contact-row">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8f0fe; color: #0071e3; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DM</div>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #1d1d1f;">District Magistrate Office</div>
+            <div style="font-size: 0.72rem; color: #6e6e73;">District-level emergency action</div>
+          </div>
+        </div>
+        <button onclick="alert('Contact integration coming soon')" style="background: #e8f0fe; color: #0071e3; border: none; border-radius: 8px; padding: 5px 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">Alert</button>
+      </div>
+
+    </div>
+
+    <!-- BLOCK F: ACTION BUTTONS ROW -->
+    <div class="inc-pdf-row">
+      <a href="/api/v1/report/pdf" class="inc-btn-primary">&#8595; Download PDF compliance report</a>
+      <button class="inc-btn-secondary" id="inc-share-btn" onclick="incShareLink()">Share incident link</button>
+      <a href="{{ url_for('index') }}" class="inc-btn-secondary">&#8592; Live monitor</a>
+    </div>
+
+    <!-- BLOCK G: DISCLAIMER -->
+    <div class="inc-disclaimer">
+      <span style="font-size:1.1rem; line-height:1; flex-shrink:0;">&#9888;</span>
+      <span>
+        All remediation strategies are AI-generated suggestions based on inferred sensor signatures. They do not constitute professional environmental engineering advice. Validate with NABL-accredited laboratory analysis before deploying any chemical, biological, or physical intervention in a natural water body.
+      </span>
+    </div>
+
+    {% endif %}
+
+  </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <p>Varuna AI Engine — Deployed using low-cost telemetry arrays with high validation Random Forest Classifiers.</p>
+    <p class="footer-sub">&copy; 2026 Varuna AI. All classifications are AI-inferred from sensor data. Validate with NABL-accredited laboratory analysis before regulatory or enforcement use.</p>
+  </footer>
+
+  <script>
+    // ── 1. TAB SWITCHER ──────────────────────────────────────────────────────
+    function incShowTab(name) {
+      ['action', 'tech', 'ai'].forEach(function(t) {
+        document.getElementById('inc-panel-' + t).style.display = (t === name) ? 'block' : 'none';
+        document.getElementById('inc-tab-' + t).className = 'inc-tab' + (t === name ? ' active' : '');
+      });
+    }
+
+    // ── 2. SHAP BAR RENDERER ─────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      var el = document.getElementById('inc-shap-data');
+      if (!el) return;
+      var rawShap = [];
+      try { rawShap = JSON.parse(el.textContent); } catch(e) { return; }
+      var container = document.getElementById('inc-shap-bars');
+      if (!container || !rawShap.length) {
+        if (container) container.innerHTML = '<p style="font-size:0.78rem;color:#6e6e73;">No SHAP data available for this reading.</p>';
+        return;
+      }
+      container.innerHTML = rawShap.map(function(item) {
+        var nm  = item.match(/^([^(]+)/);
+        var pc  = item.match(/([+-]?\d+\.?\d*)\s*%/);
+        var name = nm ? nm[1].trim() : item;
+        var pct  = pc ? parseFloat(pc[1]) : 0;
+        var w    = Math.min(Math.abs(pct), 100);
+        return '<div class="inc-shap-row">' +
+          '<div class="inc-shap-label">' + name + '</div>' +
+          '<div class="inc-shap-track"><div class="inc-shap-fill" style="width:' + w + '%;"></div></div>' +
+          '<div class="inc-shap-pct">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%</div>' +
+          '</div>';
+      }).join('');
+    });
+
+    // ── 3. STEP PARSER ───────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      var raw = document.getElementById('inc-action-steps');
+      var out = document.getElementById('inc-action-rendered');
+      if (!raw || !out) return;
+      var html  = raw.innerHTML;
+      var parts = html.split(/<b>\d+\./i).filter(function(s) { return s.trim(); });
+      if (!parts.length) {
+        out.innerHTML = '<p style="font-size:0.82rem;color:#3d3d3d;line-height:1.6;">' + html + '</p>';
+        return;
+      }
+      out.innerHTML = parts.map(function(p, i) {
+        var clean = p.replace(/<\/b>/g, '').trim();
+        return '<div class="inc-step">' +
+          '<div class="inc-step-num' + (i === 0 ? ' inc-orange' : '') + '">' + (i + 1) + '</div>' +
+          '<div class="inc-step-text">' + clean + '</div>' +
+          '</div>';
+      }).join('');
+    });
+
+    // ── 4. EVENT DURATION COUNTER ────────────────────────────────────────────
+    var incAuditTs = {{ prediction.audit_timestamp | default(0) }};
+
+    function incUpdateDuration() {
+      var now  = Math.floor(Date.now() / 1000);
+      var diff = Math.max(0, now - parseInt(incAuditTs));
+      var mins = Math.floor(diff / 60);
+      var hrs  = Math.floor(mins / 60);
+      var label;
+      if (hrs > 0) {
+        label = hrs + 'h ' + (mins % 60) + 'm';
+      } else if (mins > 0) {
+        label = mins + 'm';
+      } else {
+        label = diff + 's';
+      }
+      var el  = document.getElementById('duration-value');
+      var col = document.getElementById('duration-color');
+      if (el) el.textContent = label;
+      if (col) {
+        col.style.color = (hrs >= 2) ? '#ff3b30' : (mins >= 30) ? '#ff9500' : '#1d1d1f';
+      }
+    }
+    incUpdateDuration();
+    setInterval(incUpdateDuration, 30000);
+
+    // ── 5. TIMESTAMP FORMATTER ───────────────────────────────────────────────
+    function incFormatTs(unix) {
+      if (!unix || unix === 0) return '--';
+      var d = new Date(unix * 1000);
+      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
+        ' \u00b7 ' + d.toLocaleDateString('en-IN');
+    }
+
+    var incTsEl = document.getElementById('audit-time-display');
+    if (incTsEl) incTsEl.textContent = incFormatTs(incAuditTs);
+
+    var incAuditTsEl = document.getElementById('inc-audit-ts');
+    if (incAuditTsEl) incAuditTsEl.textContent = incFormatTs(incAuditTs);
+
+    // ── 6. SHARE BUTTON ──────────────────────────────────────────────────────
+    function incShareLink() {
+      navigator.clipboard.writeText(window.location.href).then(function() {
+        var btn  = document.getElementById('inc-share-btn');
+        if (!btn) return;
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = orig; }, 2000);
+      }).catch(function() {
+        alert('Copy this URL: ' + window.location.href);
+      });
+    }
+
+    // ── 7. AUTO-REFRESH ──────────────────────────────────────────────────────
+    var incPrevStatus = '{{ status }}';
+    setInterval(function() {
+      fetch('/api/v1/network_state')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var critical = data.find(function(r) {
+            return r.prediction && r.prediction.status === 'CRITICAL_HAZARD';
+          });
+          var newStatus = critical ? 'CRITICAL_HAZARD' : 'SAFE_WATER';
+          if (newStatus !== incPrevStatus) { location.reload(); }
+        })
+        .catch(function() {});
+    }, 10000);
+  </script>
+
+</body>
+</html>

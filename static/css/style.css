@@ -1203,3 +1203,359 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* === Incident Command Center === */
+
+/* Keyframe: pulsing red dot */
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+}
+
+/* Status banner */
+.inc-status-banner {
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.inc-critical {
+    background: #fff0f0;
+    border: 1.5px solid #ff3b30;
+}
+
+/* 4-metric score row */
+.inc-score-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+.inc-score-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid #d2d2d7;
+    padding: 1rem 1.25rem;
+}
+.inc-score-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #6e6e73;
+    margin-bottom: 6px;
+}
+.inc-score-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    color: #1d1d1f;
+}
+.inc-score-sub {
+    font-size: 0.72rem;
+    color: #6e6e73;
+    margin-top: 4px;
+}
+
+/* Live sensor strip */
+.inc-sensor-strip {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid #d2d2d7;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.inc-sensor-strip-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e6e73;
+    margin-bottom: 1rem;
+}
+.inc-sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+.inc-sensor-cell {
+    text-align: center;
+}
+.inc-sensor-name {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6e6e73;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+}
+.inc-sensor-val {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1d1d1f;
+}
+.inc-sensor-unit {
+    font-size: 0.65rem;
+    color: #6e6e73;
+    margin-top: 1px;
+}
+.inc-sensor-bar {
+    height: 3px;
+    border-radius: 999px;
+    background: #f0f0f0;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.inc-sensor-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+/* Three-tab panel */
+.inc-tab-bar {
+    display: flex;
+    gap: 4px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 1rem;
+}
+.inc-tab {
+    flex: 1;
+    text-align: center;
+    padding: 7px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6e6e73;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+.inc-tab.active {
+    background: white;
+    color: #1d1d1f;
+}
+.inc-tab-panel {
+    /* visible by default for action panel; others set display:none inline */
+}
+
+/* Action cards */
+.inc-action-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid #d2d2d7;
+    padding: 1.25rem 1.5rem;
+}
+.inc-action-card.inc-urgent {
+    border-color: #ff9500;
+    background: #fffaf0;
+}
+.inc-action-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.inc-step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.inc-step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1d1d1f;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.inc-step-num.inc-orange {
+    background: #ff9500;
+}
+.inc-step-text {
+    font-size: 0.82rem;
+    color: #3d3d3d;
+    line-height: 1.5;
+}
+.inc-compound-pill {
+    display: inline-block;
+    background: #f0f0f0;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #3d3d3d;
+    margin: 3px 3px 0 0;
+}
+
+/* SHAP bars */
+.inc-shap-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.inc-shap-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6e6e73;
+    width: 110px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.inc-shap-track {
+    flex: 1;
+    height: 5px;
+    background: #f0f0f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.inc-shap-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: #0071e3;
+    transition: width 0.6s ease;
+}
+.inc-shap-pct {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #1d1d1f;
+    width: 42px;
+    text-align: right;
+}
+
+/* Escalation contacts */
+.inc-escalation-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid #d2d2d7;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+.inc-escalation-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e6e73;
+    margin-bottom: 0.75rem;
+}
+.inc-contact-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 0.5px solid #f5f5f5;
+}
+.inc-contact-row:last-child {
+    border-bottom: none;
+}
+
+/* Action buttons row */
+.inc-pdf-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.inc-btn-primary {
+    flex: 1;
+    background: #0071e3;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 180px;
+    font-family: var(--font-family);
+}
+.inc-btn-primary:hover {
+    background: #0077ed;
+}
+.inc-btn-secondary {
+    flex: 1;
+    background: transparent;
+    color: #1d1d1f;
+    border: 1px solid #d2d2d7;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 140px;
+    font-family: var(--font-family);
+}
+.inc-btn-secondary:hover {
+    background: #f5f5f7;
+}
+
+/* Disclaimer */
+.inc-disclaimer {
+    background: #fff8e1;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    color: #78350f;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+/* === Incident Command Center — Responsive === */
+@media (max-width: 768px) {
+    .inc-score-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .inc-sensor-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .inc-two-col {
+        grid-template-columns: 1fr !important;
+    }
+    .inc-pdf-row {
+        flex-direction: column;
+    }
+    .inc-btn-primary,
+    .inc-btn-secondary {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+@media (max-width: 480px) {
+    .inc-score-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .inc-sensor-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .inc-status-banner {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+}

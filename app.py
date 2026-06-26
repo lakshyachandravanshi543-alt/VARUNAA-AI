@@ -809,6 +809,110 @@ def remediation():
                            global_strategy_2_title=global_2_title,
                            global_strategy_2_desc=global_2_desc)
 
+@app.route('/incident')
+def incident():
+    """
+    Incident Command Center — real-time
+    pollution incident response dashboard.
+    Reads latest network state and passes
+    the most critical river detection to
+    the incident template.
+    """
+    with network_lock:
+        net = list(network_state)
+
+    # Find the most critical river
+    # (CRITICAL_HAZARD first, then by
+    # lowest river health score)
+    critical_rivers = [
+        r for r in net
+        if r.get('prediction', {}).get(
+            'status'
+        ) == 'CRITICAL_HAZARD'
+    ]
+
+    if critical_rivers:
+        # Pick the one with lowest health score
+        active = min(
+            critical_rivers,
+            key=lambda r: r.get(
+                'prediction', {}
+            ).get('river_health_score', 100)
+        )
+        status = 'CRITICAL_HAZARD'
+    elif net:
+        # No critical — show cleanest river
+        active = net[0]
+        status = 'SAFE_WATER'
+    else:
+        active = None
+        status = 'SAFE_WATER'
+
+    # Build template variables
+    prediction = {}
+    raw_sensors = {
+        'ph': 7.2, 'do': 6.5,
+        'turbidity': 5.0,
+        'temperature': 24.0,
+        'ec': 450.0, 'orp': 320.0
+    }
+    river_name = 'No active monitoring'
+    weather_status = 'Clear'
+    weather_temp = 24.0
+    ai_context_msg = 'System initialising.'
+
+    if active:
+        prediction = active.get(
+            'prediction', {}
+        )
+        raw_sensors = active.get(
+            'raw_sensors', raw_sensors
+        )
+        river_name = active.get(
+            'name', 'Unknown River'
+        )
+        weather_status = active.get(
+            'weather_status', 'Clear'
+        )
+        weather_temp = active.get(
+            'weather_temp', 24.0
+        )
+        ai_context_msg = active.get(
+            'ai_context_msg', ''
+        )
+
+    # Compute trend label from sensors
+    ph = float(raw_sensors.get('ph', 7.0))
+    ec = float(raw_sensors.get('ec', 450.0))
+    if ph < 6.0 and ec > 1200:
+        trend = 'Worsening'
+        trend_dir = 'down'
+    elif ph < 6.5 or ec > 800:
+        trend = 'Stable'
+        trend_dir = 'flat'
+    else:
+        trend = 'Improving'
+        trend_dir = 'up'
+
+    return render_template(
+        'incident.html',
+        status=status,
+        water_is_clean=(status == 'SAFE_WATER'),
+        river_name=river_name,
+        prediction=prediction,
+        raw_sensors=raw_sensors,
+        detected_pollutant=prediction.get(
+            'pollutant',
+            'No active incident'
+        ),
+        weather_status=weather_status,
+        weather_temp=weather_temp,
+        ai_context_msg=ai_context_msg,
+        trend=trend,
+        trend_dir=trend_dir,
+        all_rivers=net
+    )
+
 @app.route('/hardware')
 def hardware():
     backend_url = request.host_url.rstrip('/')

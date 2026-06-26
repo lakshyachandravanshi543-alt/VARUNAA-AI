@@ -24,6 +24,7 @@
             <!-- Header Section -->
             <header class="remediation-header">
                 <a href="{{ url_for('index') }}" class="btn-ghost" style="text-decoration: none;">← Back to Live Inference</a>
+                <a href="{{ url_for('incident') }}" class="nav-link" style="text-decoration: none; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Incident Center</a>
                 <div class="remediation-title-wrap">
                     <h1 class="remediation-title">Remediation Action Plan.</h1>
                 </div>
@@ -44,6 +45,23 @@
             <!-- Polluted State: Action Plan Strategy Grid -->
             <div class="polluted-state-wrapper" style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 2rem;">
                 {% if status == 'CRITICAL_HAZARD' %}
+                <a href="{{ url_for('incident') }}"
+                   style="
+                     display: inline-flex;
+                     align-items: center;
+                     gap: 8px;
+                     background: #ff3b30;
+                     color: white;
+                     padding: 12px 24px;
+                     border-radius: 999px;
+                     font-size: 0.875rem;
+                     font-weight: 600;
+                     text-decoration: none;
+                     margin-bottom: 1.5rem;
+                     width: fit-content;
+                   ">
+                  &#9889; Open Incident Command Center
+                </a>
                 <div style="
                   background: #fff8e1;
                   border: 1.5px solid #f59e0b;
